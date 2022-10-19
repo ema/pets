@@ -1,0 +1,27 @@
+= PETS
+
+A configuration management system for computers that are Pets, not Cattle.
+
+This is for those who want to administer a few machines, all very different and
+all Very Important. Not only are those machines not Cattle, they're actually a
+bit more than Pets. They're almost Family. For example: a laptop, workstation,
+and personal tiny server. They are all named after something dear to you.
+
+== Design overview
+
+The idea behind Pets is that using a Configuration Management System should be
+as easy as administering a machine by hand. Pets can be used without doing
+anything other than modifying configuration files. After editing, say,
+sshd_config in the configuration directory watched by Pets, the system
+automatically apply the changes and reloads sshd. That's it.
+
+Following from this basic idea, here are the basic design decisions:
+
+- Runs locally on a single machine
+- One directory holds the full configuration of the system
+- Separation of variables and templates
+- Data is stored on local text files
+- One single daemon watching the configuration directory and applying changes
+  immediately
+- Changes are applied only if basic syntax checks pass
+
