@@ -49,5 +49,6 @@ func TestOK(t *testing.T) {
 	}
 
 	assertEquals(t, f.Pkg, "vim")
+	assertEquals(t, f.Dest, "/tmp/vimrc")
 	assertEquals(t, f.Mode, os.FileMode(int(0600)))
 }

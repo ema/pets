@@ -14,53 +14,93 @@ import (
 )
 
 type PetsFile struct {
-	Content string
-	Pkg     string
-	Dest    string
-	User    *user.User
-	Group   *user.Group
-	Mode    os.FileMode
-	Pre     *exec.Cmd
-	Post    *exec.Cmd
+	Source string
+	Pkg    string
+	Dest   string
+	User   *user.User
+	Group  *user.Group
+	Mode   os.FileMode
+	Pre    *exec.Cmd
+	Post   *exec.Cmd
 }
 
-func NewPetsFile(content, pkg, dest, userName, groupName, mode, pre, post string) (*PetsFile, error) {
+func (pf *PetsFile) AddDest(dest string) {
+	// TODO: create dest if missing
+	pf.Dest = dest
+}
+
+func (pf *PetsFile) AddUser(userName string) error {
+	user, err := user.Lookup(userName)
+	if err != nil {
+		// TODO: one day we may add support for creating users
+		return err
+	}
+	pf.User = user
+	return nil
+}
+
+func (pf *PetsFile) AddGroup(groupName string) error {
+	group, err := user.LookupGroup(groupName)
+	if err != nil {
+		// TODO: one day we may add support for creating groups
+		return err
+	}
+	pf.Group = group
+	return nil
+}
+
+func (pf *PetsFile) AddMode(mode string) error {
+	octalMode, err := strconv.ParseInt(mode, 8, 64)
+	if err != nil {
+		return err
+	}
+
+	pf.Mode = os.FileMode(octalMode)
+	return nil
+}
+
+func (pf *PetsFile) AddPre(pre string) {
+	preArgs := strings.Fields(pre)
+	if len(preArgs) > 0 {
+		pf.Pre = exec.Command(preArgs[0], preArgs[1:]...)
+	}
+}
+
+func (pf *PetsFile) AddPost(post string) {
+	postArgs := strings.Fields(post)
+	if len(postArgs) > 0 {
+		pf.Post = exec.Command(postArgs[0], postArgs[1:]...)
+	}
+}
+
+func NewPetsFile(src, pkg, dest, userName, groupName, mode, pre, post string) (*PetsFile, error) {
 	var err error
 
 	p := &PetsFile{
-		Content: content,
-		Pkg:     pkg,
-		Dest:    dest, // TODO: create dest if missing
+		Source: src,
+		Pkg:    pkg,
 	}
 
-	p.User, err = user.Lookup(userName)
-	if err != nil {
-		// TODO: one day we may add support for creating users
-		return nil, err
-	}
+	p.AddDest(dest)
 
-	p.Group, err = user.LookupGroup(groupName)
-	if err != nil {
-		// TODO: one day we may add support for creating groups
-		return nil, err
-	}
-
-	octalMode, err := strconv.ParseInt(mode, 8, 64)
+	err = p.AddUser(userName)
 	if err != nil {
 		return nil, err
 	}
 
-	p.Mode = os.FileMode(octalMode)
-
-	preArgs := strings.Fields(pre)
-	if len(preArgs) > 0 {
-		p.Pre = exec.Command(preArgs[0], preArgs[1:]...)
+	err = p.AddGroup(groupName)
+	if err != nil {
+		return nil, err
 	}
 
-	postArgs := strings.Fields(post)
-	if len(postArgs) > 0 {
-		p.Post = exec.Command(postArgs[0], postArgs[1:]...)
+	err = p.AddMode(mode)
+	if err != nil {
+		return nil, err
 	}
+
+	p.AddPre(pre)
+
+	p.AddPost(post)
 
 	return p, nil
 }
