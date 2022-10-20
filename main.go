@@ -1,5 +1,10 @@
 package main
 
+import "fmt"
+
 func main() {
-	walkDir("sample_pet")
+	err := walkDir("sample_pet")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
