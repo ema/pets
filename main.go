@@ -20,9 +20,11 @@ func main() {
 		return
 	}
 
-	// Check validation errors in individual files. Get a list of valid files.
+	// Check validation errors in individual files. At this stage, the
+	// command in the "pre" validation directive may not be installed yet.
+	// Ignore PathErrors for now. Get a list of valid files.
 	// TODO: see if the specified packages are available (eg: apt-cache policy)
-	goodPets := checkLocalConstraints(files)
+	goodPets := checkLocalConstraints(files, true)
 	for _, pet := range goodPets {
 		fmt.Println(pet)
 	}

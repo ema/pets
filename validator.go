@@ -15,7 +15,7 @@ import (
 // configuration files
 func checkGlobalConstraints(files []*PetsFile) error {
 	// Keep the seen PetsFiles in a map so we can:
-	// 1) print the duplicate sources
+	// 1) identify and print duplicate sources
 	// 2) avoid slices.Contains which is only in Go 1.18+ and not even bound to
 	//    the Go 1 Compatibility Promise™
 	seen := make(map[string]*PetsFile)
@@ -35,7 +35,7 @@ func checkGlobalConstraints(files []*PetsFile) error {
 // individual configuration files. An error in one file means we're gonna skip
 // it but proceed with the rest. The function returns a slice of files for
 // which validation passed.
-func checkLocalConstraints(files []*PetsFile) []*PetsFile {
+func checkLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
 	var goodPets []*PetsFile
 
 	for _, pf := range files {
@@ -45,7 +45,7 @@ func checkLocalConstraints(files []*PetsFile) []*PetsFile {
 		}
 
 		// Check pre-update validation command
-		if !pf.RunPre(true) {
+		if !pf.RunPre(pathErrorOK) {
 			continue
 		}
 
