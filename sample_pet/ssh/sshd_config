@@ -1,4 +1,4 @@
-# pets: destfile=/etc/ssh/sshd_config owner=root group=root mode=0644
+# pets: destfile=/etc/ssh/sshd_config, owner=root, group=root, mode=0644
 # pets: package=ssh
 # pets: pre=/usr/sbin/sshd -t -f
 # pets: post=/bin/systemctl reload ssh.service

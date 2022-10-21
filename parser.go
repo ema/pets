@@ -43,6 +43,9 @@ func readModelines(path string) ([]string, error) {
 	return modelines, nil
 }
 
+// parseModeline parses a single pets modeline and populates the given PetsFile
+// object. The line should something like:
+// # pets: destfile=/etc/ssh/sshd_config, owner=root, group=root, mode=0644
 func parseModeline(line string, pf *PetsFile) error {
 	// We just ignore and throw away anything before the 'pets:' modeline
 	// identifier
@@ -53,7 +56,7 @@ func parseModeline(line string, pf *PetsFile) error {
 
 	// Hope for the best but prepare for the worst. Here's the error object
 	// we're gonna return if things go wrong.
-	lineError := fmt.Errorf("ERR: invalid pets modeline: %v", line)
+	lineError := fmt.Errorf("ERROR: invalid pets modeline: %v", line)
 
 	matches := re.FindStringSubmatch(line)
 
@@ -61,22 +64,55 @@ func parseModeline(line string, pf *PetsFile) error {
 		return lineError
 	}
 
-	fmt.Println("---")
-
-	components := strings.Split(matches[1], " ")
-	for i := 0; i < len(components); i++ {
-		elem := components[i]
-
-		if len(elem) == 0 {
+	components := strings.Split(matches[1], ",")
+	for _, comp := range components {
+		// Ignore whitespace
+		elem := strings.TrimSpace(comp)
+		if len(elem) == 0 || elem == "\t" {
 			continue
 		}
 
-		directive, _, _ := strings.Cut(elem, "=")
+		keyword, argument, found := strings.Cut(elem, "=")
 
-		if directive == "destfile" {
-			fmt.Printf("\tUHUH found destfile -> %v\n", components)
-		} else if directive == "package" {
-			fmt.Printf("\tUHUH found package -> %v\n", components)
+		if found && (keyword == "destfile" ||
+			keyword == "owner" ||
+			keyword == "group" ||
+			keyword == "mode" ||
+			keyword == "package" ||
+			keyword == "pre" ||
+			keyword == "post") {
+			fmt.Printf("DEBUG: keyword '%v', argument '%v'\n", keyword, argument)
+		} else {
+			return fmt.Errorf("ERROR: invalid keyword/argument '%v'", elem)
+		}
+
+		if keyword == "destfile" {
+			pf.AddDest(argument)
+		}
+
+		if keyword == "owner" {
+			pf.AddUser(argument)
+		}
+
+		if keyword == "group" {
+			pf.AddGroup(argument)
+		}
+
+		if keyword == "mode" {
+			pf.AddMode(argument)
+		}
+
+		if keyword == "package" {
+			// haha gotcha this one is different :)
+			pf.Pkg = argument
+		}
+
+		if keyword == "pre" {
+			pf.AddPre(argument)
+		}
+
+		if keyword == "post" {
+			pf.AddPost(argument)
 		}
 	}
 
@@ -97,6 +133,11 @@ func petsFileHandler(path string, info os.FileInfo, err error) error {
 
 	modelines, err := readModelines(path)
 	if err != nil {
+		// Returning the error we stop parsing all other files too. Debatable
+		// whether we want to do that here or not. readModelines should not
+		// fail technically, so it's probably fine to do it. Alternatively, we
+		// could just log to stderr and return nil like we do later on for
+		// syntax errors.
 		return err
 	}
 
@@ -105,7 +146,7 @@ func petsFileHandler(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 
-	fmt.Printf("-> %d pets modelines found in %s\n", len(modelines), path)
+	fmt.Printf("INFO: %d pets modelines found in %s\n", len(modelines), path)
 
 	// Instantiate a PetsFile representation. The only thing we know so far
 	// is the source path. Every long journey begins with a single step!
@@ -116,13 +157,21 @@ func petsFileHandler(path string, info os.FileInfo, err error) error {
 	for _, line := range modelines {
 		err := parseModeline(line, pf)
 		if err != nil {
-			// TODO: Possibly a syntax error, skip the whole file
-			// (this very "path")
-			return err
+			// Possibly a syntax error, skip the whole file but do not return
+			// an error! Otherwise all other files will be skipped too.
+			fmt.Println(err) // XXX: log to stderr
+			return nil
 		}
 	}
 
-	fmt.Println(pf)
+	if pf.Dest == "" {
+		// Destile is a mandatory argument. If we did not find any, consider it an
+		// error.
+		fmt.Println(fmt.Errorf("ERROR: No 'destfile' directive found in '%s'", path))
+		return nil
+	}
+
+	fmt.Printf("DEBUG: '%s' syntax OK\n", path)
 	return err
 }
 

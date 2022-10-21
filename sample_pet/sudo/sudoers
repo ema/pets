@@ -1,4 +1,4 @@
-# pets: destfile=/etc/sudoers owner=root  group=root mode=0440
+# pets: destfile=/etc/sudoers, owner=root, group=root, mode=0440
 # pets: package=sudo
 # pets: pre=visudo -cf
 #

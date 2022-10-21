@@ -34,7 +34,7 @@ One picture is worth a thousand words. We don't have pictures though, so here's
 an example. It must be worth at least 500 words though right?
 
 ----
-# pets: destfile=/etc/ssh/sshd_config owner=root group=root mode=0644
+# pets: destfile=/etc/ssh/sshd_config, owner=root, group=root, mode=0644
 # pets: package=ssh
 # pets: pre=/usr/sbin/sshd -t -f
 # pets: post=/bin/systemctl reload ssh.service
@@ -66,11 +66,28 @@ Subsystem sftp /usr/lib/openssh/sftp-server
 UsePAM yes
 ----
 
-That's it! All 4 supported configuration directives are showcased in the example above:
+That's it! All supported configuration directives are showcased in the example above:
 
 - destfile -- where to install this file and the relevant permissions. This is
   the only mandatory directive.
+- owner -- the file owner, passed to chown(1)
+- group -- the group this file belongs to, passed chgrp(1)
+- mode -- octal mode for chmod(1)
 - package (optional) -- which package to install before creating the file.
 - pre (optional) -- validation command. This must succeed for the file to be
   created / updated.
 - post (optional) -- apply command. Usually something like reloading a service.
+
+Configuration directives are passed as key/value arguments, either on multiple
+lines or separated by commas.
+
+----
+# pets: package=ssh, pre=/usr/sbin/sshd -t -f
+----
+
+The example above and the one below are equivalent
+
+----
+# pets: package=ssh
+# pets: pre=/usr/sbin/sshd -t -f
+----
