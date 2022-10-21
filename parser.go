@@ -107,63 +107,67 @@ func parseModeline(line string, pf *PetsFile) error {
 	return nil
 }
 
-// This function is called once for each file in the Pets configuration
-// directory
-func petsFileHandler(path string, info os.FileInfo, err error) error {
-	if err != nil {
-		return err
-	}
+func walkDir(directory string) ([]*PetsFile, error) {
+	var petsFiles []*PetsFile
 
-	if info.IsDir() {
-		// Skip directories
-		return nil
-	}
+	fmt.Printf("INFO: watching configuration directory '%s'\n", directory)
 
-	modelines, err := readModelines(path)
-	if err != nil {
-		// Returning the error we stop parsing all other files too. Debatable
-		// whether we want to do that here or not. readModelines should not
-		// fail technically, so it's probably fine to do it. Alternatively, we
-		// could just log to stderr and return nil like we do later on for
-		// syntax errors.
-		return err
-	}
-
-	if len(modelines) == 0 {
-		// Not a Pets file. We don't take it personal though
-		return nil
-	}
-
-	fmt.Printf("INFO: %d pets modelines found in %s\n", len(modelines), path)
-
-	// Instantiate a PetsFile representation. The only thing we know so far
-	// is the source path. Every long journey begins with a single step!
-	pf := &PetsFile{
-		Source: path,
-	}
-
-	for _, line := range modelines {
-		err := parseModeline(line, pf)
+	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+		// This function is called once for each file in the Pets configuration
+		// directory
 		if err != nil {
-			// Possibly a syntax error, skip the whole file but do not return
-			// an error! Otherwise all other files will be skipped too.
-			fmt.Println(err) // XXX: log to stderr
+			return err
+		}
+
+		if info.IsDir() {
+			// Skip directories
 			return nil
 		}
-	}
 
-	if pf.Dest == "" {
-		// Destile is a mandatory argument. If we did not find any, consider it an
-		// error.
-		fmt.Println(fmt.Errorf("ERROR: No 'destfile' directive found in '%s'", path))
+		modelines, err := readModelines(path)
+		if err != nil {
+			// Returning the error we stop parsing all other files too. Debatable
+			// whether we want to do that here or not. readModelines should not
+			// fail technically, so it's probably fine to do it. Alternatively, we
+			// could just log to stderr and return nil like we do later on for
+			// syntax errors.
+			return err
+		}
+
+		if len(modelines) == 0 {
+			// Not a Pets file. We don't take it personal though
+			return nil
+		}
+
+		fmt.Printf("INFO: %d pets modelines found in %s\n", len(modelines), path)
+
+		// Instantiate a PetsFile representation. The only thing we know so far
+		// is the source path. Every long journey begins with a single step!
+		pf := &PetsFile{
+			Source: path,
+		}
+
+		for _, line := range modelines {
+			err := parseModeline(line, pf)
+			if err != nil {
+				// Possibly a syntax error, skip the whole file but do not return
+				// an error! Otherwise all other files will be skipped too.
+				fmt.Println(err) // XXX: log to stderr
+				return nil
+			}
+		}
+
+		if pf.Dest == "" {
+			// Destile is a mandatory argument. If we did not find any, consider it an
+			// error.
+			fmt.Println(fmt.Errorf("ERROR: No 'destfile' directive found in '%s'", path))
+			return nil
+		}
+
+		fmt.Printf("DEBUG: '%s' syntax OK\n", path)
+		petsFiles = append(petsFiles, pf)
 		return nil
-	}
+	})
 
-	fmt.Printf("DEBUG: '%s' syntax OK\n", path)
-	return err
-}
-
-func walkDir(directory string) error {
-	err := filepath.Walk(directory, petsFileHandler)
-	return err
+	return petsFiles, err
 }
