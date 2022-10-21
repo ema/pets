@@ -74,46 +74,35 @@ func parseModeline(line string, pf *PetsFile) error {
 
 		keyword, argument, found := strings.Cut(elem, "=")
 
-		if found && (keyword == "destfile" ||
-			keyword == "owner" ||
-			keyword == "group" ||
-			keyword == "mode" ||
-			keyword == "package" ||
-			keyword == "pre" ||
-			keyword == "post") {
-			fmt.Printf("DEBUG: keyword '%v', argument '%v'\n", keyword, argument)
-		} else {
+		// Just in case something bad should happen
+		badKeyword := fmt.Errorf("ERROR: invalid keyword/argument '%v'", elem)
+
+		if !found {
+			return badKeyword // :(
+		}
+
+		switch keyword {
+		case "destfile":
+			pf.AddDest(argument)
+		case "owner":
+			pf.AddUser(argument)
+		case "group":
+			pf.AddGroup(argument)
+		case "mode":
+			pf.AddMode(argument)
+		case "package":
+			// haha gotcha this one has no setter
+			pf.Pkg = argument
+		case "pre":
+			pf.AddPre(argument)
+		case "post":
+			pf.AddPost(argument)
+		default:
 			return fmt.Errorf("ERROR: invalid keyword/argument '%v'", elem)
 		}
 
-		if keyword == "destfile" {
-			pf.AddDest(argument)
-		}
-
-		if keyword == "owner" {
-			pf.AddUser(argument)
-		}
-
-		if keyword == "group" {
-			pf.AddGroup(argument)
-		}
-
-		if keyword == "mode" {
-			pf.AddMode(argument)
-		}
-
-		if keyword == "package" {
-			// haha gotcha this one is different :)
-			pf.Pkg = argument
-		}
-
-		if keyword == "pre" {
-			pf.AddPre(argument)
-		}
-
-		if keyword == "post" {
-			pf.AddPost(argument)
-		}
+		// :)
+		fmt.Printf("DEBUG: keyword '%v', argument '%v'\n", keyword, argument)
 	}
 
 	return nil
