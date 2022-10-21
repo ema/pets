@@ -30,3 +30,27 @@ func checkGlobalConstraints(files []*PetsFile) error {
 
 	return nil
 }
+
+// checkLocalConstraints validates assumptions that must hold for the
+// individual configuration files. An error in one file means we're gonna skip
+// it but proceed with the rest. The function returns a slice of files for
+// which validation passed.
+func checkLocalConstraints(files []*PetsFile) []*PetsFile {
+	var goodPets []*PetsFile
+
+	for _, pf := range files {
+		// Check if the specified package exists
+		if !pf.PkgExists() {
+			continue
+		}
+
+		// Check pre-update validation command
+		if !pf.RunPre(true) {
+			continue
+		}
+
+		goodPets = append(goodPets, pf)
+	}
+
+	return goodPets
+}

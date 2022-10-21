@@ -6,6 +6,8 @@
 package main
 
 import (
+	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"os/user"
@@ -71,6 +73,43 @@ func (pf *PetsFile) AddPost(post string) {
 	if len(postArgs) > 0 {
 		pf.Post = exec.Command(postArgs[0], postArgs[1:]...)
 	}
+}
+
+// RunPre returns true if the pre-update validation command passes, or if it
+// was not specificed at all. The boolean argument pathErrorOK controls whether
+// or not we want to fail if the validation command is not around.
+func (pf *PetsFile) RunPre(pathErrorOK bool) bool {
+	if pf.Pre == nil {
+		return true
+	}
+
+	// Run 'pre' validation command, append Source filename to
+	// arguments.
+	// eg: /usr/sbin/sshd -t -f sample_pet/ssh/sshd_config
+	pf.Pre.Args = append(pf.Pre.Args, pf.Source)
+
+	err := pf.Pre.Run()
+
+	_, pathError := err.(*fs.PathError)
+
+	if err == nil {
+		fmt.Printf("INFO: pre-update command %s successful\n", pf.Pre.Args)
+		return true
+	} else if pathError && pathErrorOK {
+		// The command has failed because the validation command itself is
+		// missing. This could be a chicken-and-egg problem: at this stage
+		// configuration is not validated yet, hence any "package" directives
+		// have not been applied.  Do not consider this as a failure, for now.
+		fmt.Printf("INFO: pre-update command %s failed due to PathError. Ignoring for now\n", pf.Pre.Args)
+		return true
+	} else {
+		fmt.Printf("ERROR: pre-update command %s: %s\n", pf.Pre.Args, err)
+		return false
+	}
+}
+
+func (pf *PetsFile) PkgExists() bool {
+	return true
 }
 
 func NewPetsFile(src, pkg, dest, userName, groupName, mode, pre, post string) (*PetsFile, error) {
