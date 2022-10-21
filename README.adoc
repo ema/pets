@@ -11,12 +11,13 @@ something dear to you.
 == Design overview
 
 The idea behind Pets is that using a Configuration Management System should be
-as easy as administering a machine by hand. Pets can be used without doing
+as easy as administering a computer by hand. Pets can be used without doing
 anything other than modifying configuration files. After editing, say,
 sshd_config in the configuration directory watched by Pets, the system
-automatically apply the changes and reloads sshd. That's it.
+automatically apply the changes and reloads sshd. No ansible runs, no
+puppetmaster, nada.
 
-Following from this basic idea, here are the basic design decisions:
+Following from this basic idea, here are the design decisions:
 
 - Runs locally on a single machine
 - One directory holds the full configuration of the system
@@ -28,10 +29,9 @@ Following from this basic idea, here are the basic design decisions:
 - Changes are applied only if basic syntax checks pass
 - Main interaction mechanism inspired by vim modelines
 
-== Configuration example
+== How does it work
 
-One picture is worth a thousand words. We don't have pictures though, so here's
-an example. It must be worth at least 500 words though right?
+One example is worth a thousand words.
 
 ----
 # pets: destfile=/etc/ssh/sshd_config, owner=root, group=root, mode=0644

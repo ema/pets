@@ -109,6 +109,7 @@ func (pf *PetsFile) RunPre(pathErrorOK bool) bool {
 }
 
 func (pf *PetsFile) PkgExists() bool {
+	// TODO
 	return true
 }
 
