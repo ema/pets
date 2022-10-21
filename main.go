@@ -11,4 +11,7 @@ func main() {
 	for i, f := range files {
 		fmt.Printf("%d: %v\n", i, f)
 	}
+
+	constraints := checkGlobalConstraints(files)
+	fmt.Println(constraints)
 }
