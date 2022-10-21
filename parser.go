@@ -14,6 +14,7 @@ import (
 	"strings"
 )
 
+// Because it is important to know when enough is enough.
 const MAXLINES int = 10
 
 func readModelines(path string) ([]string, error) {
@@ -54,14 +55,12 @@ func parseModeline(line string, pf *PetsFile) error {
 		return err
 	}
 
-	// Hope for the best but prepare for the worst. Here's the error object
-	// we're gonna return if things go wrong.
-	lineError := fmt.Errorf("ERROR: invalid pets modeline: %v", line)
-
 	matches := re.FindStringSubmatch(line)
 
 	if len(matches) < 2 {
-		return lineError
+		// We thought this was a pets modeline -- but then it turned out to be
+		// something different, very different indeed.
+		return fmt.Errorf("ERROR: invalid pets modeline: %v", line)
 	}
 
 	components := strings.Split(matches[1], ",")
@@ -78,7 +77,7 @@ func parseModeline(line string, pf *PetsFile) error {
 		badKeyword := fmt.Errorf("ERROR: invalid keyword/argument '%v'", elem)
 
 		if !found {
-			return badKeyword // :(
+			return badKeyword // See? :(
 		}
 
 		switch keyword {
@@ -98,7 +97,7 @@ func parseModeline(line string, pf *PetsFile) error {
 		case "post":
 			pf.AddPost(argument)
 		default:
-			return fmt.Errorf("ERROR: invalid keyword/argument '%v'", elem)
+			return badKeyword
 		}
 
 		// :)
