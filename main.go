@@ -6,12 +6,17 @@ func main() {
 	// *** Config parser + watcher ***
 
 	// Generate a list of PetsFiles from the given config directory.
+	fmt.Println("DEBUG: * configuration parsing starts *")
+
 	files, err := walkDir("sample_pet")
 	if err != nil {
 		fmt.Println(err)
 	}
 
+	fmt.Println("DEBUG: * configuration parsing ends *")
+
 	// *** Config validator ***
+	fmt.Println("DEBUG: * configuration validation starts *")
 	globalErrors := checkGlobalConstraints(files)
 
 	if globalErrors != nil {
@@ -23,11 +28,12 @@ func main() {
 	// Check validation errors in individual files. At this stage, the
 	// command in the "pre" validation directive may not be installed yet.
 	// Ignore PathErrors for now. Get a list of valid files.
-	// TODO: see if the specified packages are available (eg: apt-cache policy)
 	goodPets := checkLocalConstraints(files, true)
 	for _, pet := range goodPets {
-		fmt.Println(pet)
+		fmt.Printf("DEBUG: valid configuration file: %s\n", pet.Source)
 	}
+
+	fmt.Println("DEBUG: * configuration validation ends *")
 
 	// *** Update visualizer ***
 	// packages to install

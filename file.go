@@ -6,6 +6,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io/fs"
 	"os"
@@ -108,9 +109,25 @@ func (pf *PetsFile) RunPre(pathErrorOK bool) bool {
 	}
 }
 
-func (pf *PetsFile) PkgExists() bool {
-	// TODO
-	return true
+func (pf *PetsFile) PkgIsValid() bool {
+	var outb bytes.Buffer
+	aptCache := exec.Command("apt-cache", "policy", pf.Pkg)
+	aptCache.Stdout = &outb
+
+	err := aptCache.Run()
+	if err != nil {
+		fmt.Printf("ERROR: PkgIsValid command %s failed: %s\n", aptCache, err)
+		return false
+	}
+
+	if strings.HasPrefix(outb.String(), pf.Pkg) {
+		// Return true if the output of apt-cache policy begins with Pkg
+		fmt.Printf("DEBUG: %s is a valid package name\n", pf.Pkg)
+		return true
+	} else {
+		fmt.Printf("ERROR: %s is not an available package\n", pf.Pkg)
+		return false
+	}
 }
 
 func NewPetsFile(src, pkg, dest, userName, groupName, mode, pre, post string) (*PetsFile, error) {

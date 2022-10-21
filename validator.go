@@ -40,7 +40,7 @@ func checkLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
 
 	for _, pf := range files {
 		// Check if the specified package exists
-		if !pf.PkgExists() {
+		if !pf.PkgIsValid() {
 			continue
 		}
 

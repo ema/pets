@@ -164,7 +164,7 @@ func walkDir(directory string) ([]*PetsFile, error) {
 			return nil
 		}
 
-		fmt.Printf("DEBUG: '%s' syntax OK\n", path)
+		fmt.Printf("DEBUG: '%s' pets syntax OK\n", path)
 		petsFiles = append(petsFiles, pf)
 		return nil
 	})
