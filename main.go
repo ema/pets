@@ -46,6 +46,7 @@ func main() {
 	// *** Update executor ***
 	// Install missing packages
 	// Create missing directories
+	// Run pre-update command and stop the update if it fails
 	// Update files
 	// Change permissions/owners
 	// Run post-update commands

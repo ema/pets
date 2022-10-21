@@ -6,9 +6,6 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
-	"io/fs"
 	"os"
 	"os/exec"
 	"os/user"
@@ -73,60 +70,6 @@ func (pf *PetsFile) AddPost(post string) {
 	postArgs := strings.Fields(post)
 	if len(postArgs) > 0 {
 		pf.Post = exec.Command(postArgs[0], postArgs[1:]...)
-	}
-}
-
-// RunPre returns true if the pre-update validation command passes, or if it
-// was not specificed at all. The boolean argument pathErrorOK controls whether
-// or not we want to fail if the validation command is not around.
-func (pf *PetsFile) RunPre(pathErrorOK bool) bool {
-	if pf.Pre == nil {
-		return true
-	}
-
-	// Run 'pre' validation command, append Source filename to
-	// arguments.
-	// eg: /usr/sbin/sshd -t -f sample_pet/ssh/sshd_config
-	pf.Pre.Args = append(pf.Pre.Args, pf.Source)
-
-	err := pf.Pre.Run()
-
-	_, pathError := err.(*fs.PathError)
-
-	if err == nil {
-		fmt.Printf("INFO: pre-update command %s successful\n", pf.Pre.Args)
-		return true
-	} else if pathError && pathErrorOK {
-		// The command has failed because the validation command itself is
-		// missing. This could be a chicken-and-egg problem: at this stage
-		// configuration is not validated yet, hence any "package" directives
-		// have not been applied.  Do not consider this as a failure, for now.
-		fmt.Printf("INFO: pre-update command %s failed due to PathError. Ignoring for now\n", pf.Pre.Args)
-		return true
-	} else {
-		fmt.Printf("ERROR: pre-update command %s: %s\n", pf.Pre.Args, err)
-		return false
-	}
-}
-
-func (pf *PetsFile) PkgIsValid() bool {
-	var outb bytes.Buffer
-	aptCache := exec.Command("apt-cache", "policy", pf.Pkg)
-	aptCache.Stdout = &outb
-
-	err := aptCache.Run()
-	if err != nil {
-		fmt.Printf("ERROR: PkgIsValid command %s failed: %s\n", aptCache, err)
-		return false
-	}
-
-	if strings.HasPrefix(outb.String(), pf.Pkg) {
-		// Return true if the output of apt-cache policy begins with Pkg
-		fmt.Printf("DEBUG: %s is a valid package name\n", pf.Pkg)
-		return true
-	} else {
-		fmt.Printf("ERROR: %s is not an available package\n", pf.Pkg)
-		return false
 	}
 }
 
