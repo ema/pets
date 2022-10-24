@@ -36,6 +36,12 @@ func main() {
 	fmt.Println("DEBUG: * configuration validation ends *")
 
 	// *** Update visualizer ***
+	for _, pet := range goodPets {
+		for _, action := range NewPetsActions(pet) {
+			action.Visualize()
+		}
+	}
+
 	// packages to install
 	// pre-update command output
 	// files created/modified

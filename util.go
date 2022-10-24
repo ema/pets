@@ -6,6 +6,10 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"fmt"
+	"io"
+	"os"
 	"os/exec"
 )
 
@@ -34,4 +38,20 @@ func RunCmd(cmd *exec.Cmd) (string, string, error) {
 	err := cmd.Run()
 
 	return outb.String(), errb.String(), err
+}
+
+// Sha256 returns the sha256 of the given file. Shocking, I know.
+func Sha256(fileName string) (string, error) {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
