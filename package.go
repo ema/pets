@@ -4,17 +4,16 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
 	"strings"
 )
 
 // A PetsPackage represents a distribution package.
-type PetsPackage struct {
-	Name string
-}
+type PetsPackage string
 
 // IsValid returns true if the given PetsPackage is available in the distro.
-func (pp *PetsPackage) IsValid() bool {
-	aptCache := NewCmd([]string{"apt-cache", "policy", pp.Name})
+func (pp PetsPackage) IsValid() bool {
+	aptCache := NewCmd([]string{"apt-cache", "policy", string(pp)})
 	stdout, _, err := RunCmd(aptCache)
 
 	if err != nil {
@@ -22,12 +21,17 @@ func (pp *PetsPackage) IsValid() bool {
 		return false
 	}
 
-	if strings.HasPrefix(stdout, pp.Name) {
-		// Return true if the output of apt-cache policy begins with Name
-		fmt.Printf("DEBUG: %s is a valid package name\n", pp.Name)
+	if strings.HasPrefix(stdout, string(pp)) {
+		// Return true if the output of apt-cache policy begins with pp
+		fmt.Printf("DEBUG: %s is a valid package name\n", pp)
 		return true
 	} else {
-		fmt.Printf("ERROR: %s is not an available package\n", pp.Name)
+		fmt.Printf("ERROR: %s is not an available package\n", pp)
 		return false
 	}
+}
+
+// InstallCommand returns the command needed to install the given PetsPackage.
+func (pp PetsPackage) InstallCommand() *exec.Cmd {
+	return NewCmd([]string{"apt-get", "-y", "install", string(pp)})
 }

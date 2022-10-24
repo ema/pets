@@ -76,8 +76,7 @@ func CheckLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
 		fmt.Printf("DEBUG: validating %s\n", pf.Source)
 
 		// Check if the specified package exists
-		pp := &PetsPackage{Name: pf.Pkg}
-		if !pp.IsValid() {
+		if !pf.Pkg.IsValid() {
 			continue
 		}
 

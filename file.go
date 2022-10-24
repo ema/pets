@@ -14,7 +14,7 @@ import (
 // representation of a configuration file (eg: sshd_config)
 type PetsFile struct {
 	Source string
-	Pkg    string
+	Pkg    PetsPackage
 	Dest   string
 	User   *user.User
 	Group  *user.Group
@@ -77,7 +77,7 @@ func NewPetsFile(src, pkg, dest, userName, groupName, mode, pre, post string) (*
 
 	p := &PetsFile{
 		Source: src,
-		Pkg:    pkg,
+		Pkg:    PetsPackage(pkg),
 	}
 
 	p.AddDest(dest)

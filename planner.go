@@ -44,7 +44,7 @@ func NewPetsActions(trigger *PetsFile) []*PetsAction {
 	// First, install the package
 	if trigger.Pkg != "" {
 		actions = append(actions, &PetsAction{
-			Command: NewCmd([]string{"apt-get", "-y", "install", trigger.Pkg}),
+			Command: trigger.Pkg.InstallCommand(),
 			Trigger: trigger,
 		})
 	}
