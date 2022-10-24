@@ -34,7 +34,7 @@ func main() {
 
 	// *** Update visualizer ***
 	// Display:
-	// - packages to install
+	// - packages to install (XXX: instead of installing all packages one-by-one, we should get a list of package names and then apt install A B C)
 	// - pre-update command output
 	// - files created/modified
 	// - content diff
