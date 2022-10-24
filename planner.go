@@ -7,9 +7,21 @@ import (
 	"os/exec"
 )
 
+// PetsCause conveys the reason behind a given action.
+type PetsCause int
+
+const (
+	PKG      = iota // required package is missing
+	CONTENTS        // configuration file contents differ
+	OWNER           // needs chown()
+	GROUP           // needs chgrp()
+	MODE            // needs chmod()
+)
+
 // A PetsAction represents something to be done, namely running a certain
 // Command. PetsActions exist because of some Trigger, which is a PetsFile.
 type PetsAction struct {
+	Cause   PetsCause
 	Command *exec.Cmd
 	Trigger *PetsFile
 }
@@ -49,6 +61,7 @@ func NewPetsActions(trigger *PetsFile) []*PetsAction {
 		} else {
 			fmt.Printf("INFO: %s not installed\n", trigger.Pkg)
 			actions = append(actions, &PetsAction{
+				Cause:   PKG,
 				Command: trigger.Pkg.InstallCommand(),
 				Trigger: trigger,
 			})
@@ -72,6 +85,7 @@ func NewPetsActions(trigger *PetsFile) []*PetsAction {
 		fmt.Printf("DEBUG: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
 
 		actions = append(actions, &PetsAction{
+			Cause:   CONTENTS,
 			Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
 			Trigger: trigger,
 		})

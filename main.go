@@ -34,7 +34,9 @@ func main() {
 
 	// *** Update visualizer ***
 	// Display:
-	// - packages to install (XXX: instead of installing all packages one-by-one, we should get a list of package names and then apt install A B C)
+	// - packages to install (XXX: instead of installing all packages
+	//     one-by-one, we should get a list of package names and then apt
+	//     install A B C. This can be done by filtering goodPets for pet.Cause == PKG)
 	// - pre-update command output
 	// - files created/modified
 	// - content diff
