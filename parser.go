@@ -17,7 +17,10 @@ import (
 // Because it is important to know when enough is enough.
 const MAXLINES int = 10
 
-func readModelines(path string) ([]string, error) {
+// ReadModelines looks into the given file and searches for pets modelines. A
+// modeline is any string which includes the 'pets:' substring. All modelines
+// found are returned as-is in a slice.
+func ReadModelines(path string) ([]string, error) {
 	modelines := []string{}
 
 	file, err := os.Open(path)
@@ -44,10 +47,10 @@ func readModelines(path string) ([]string, error) {
 	return modelines, nil
 }
 
-// parseModeline parses a single pets modeline and populates the given PetsFile
+// ParseModeline parses a single pets modeline and populates the given PetsFile
 // object. The line should something like:
 // # pets: destfile=/etc/ssh/sshd_config, owner=root, group=root, mode=0644
-func parseModeline(line string, pf *PetsFile) error {
+func ParseModeline(line string, pf *PetsFile) error {
 	// We just ignore and throw away anything before the 'pets:' modeline
 	// identifier
 	re, err := regexp.Compile("pets:(.*)")
@@ -107,7 +110,9 @@ func parseModeline(line string, pf *PetsFile) error {
 	return nil
 }
 
-func walkDir(directory string) ([]*PetsFile, error) {
+// ParseFiles walks the given directory, identifies all configuration files
+// with pets modelines, and returns a list of parsed PetsFile(s).
+func ParseFiles(directory string) ([]*PetsFile, error) {
 	var petsFiles []*PetsFile
 
 	fmt.Printf("INFO: watching configuration directory '%s'\n", directory)
@@ -124,10 +129,10 @@ func walkDir(directory string) ([]*PetsFile, error) {
 			return nil
 		}
 
-		modelines, err := readModelines(path)
+		modelines, err := ReadModelines(path)
 		if err != nil {
 			// Returning the error we stop parsing all other files too. Debatable
-			// whether we want to do that here or not. readModelines should not
+			// whether we want to do that here or not. ReadModelines should not
 			// fail technically, so it's probably fine to do it. Alternatively, we
 			// could just log to stderr and return nil like we do later on for
 			// syntax errors.
@@ -148,7 +153,7 @@ func walkDir(directory string) ([]*PetsFile, error) {
 		}
 
 		for _, line := range modelines {
-			err := parseModeline(line, pf)
+			err := ParseModeline(line, pf)
 			if err != nil {
 				// Possibly a syntax error, skip the whole file but do not return
 				// an error! Otherwise all other files will be skipped too.

@@ -1,7 +1,4 @@
 // Copyright (C) 2022 Emanuele Rocca
-//
-// Pets configuration Planner. Given a PetsFile, generate a list of Actions to
-// perform.
 
 package main
 
@@ -10,6 +7,8 @@ import (
 	"os/exec"
 )
 
+// A PetsAction represents something to be done, namely running a certain
+// Command. PetsActions exist because of some Trigger, which is a PetsFile.
 type PetsAction struct {
 	Command *exec.Cmd
 	Trigger *PetsFile
@@ -37,7 +36,8 @@ func (pa *PetsAction) Perform() {
 	}
 }
 
-// NewPetsActions is the PetsFile -> []PetsAction constructor
+// NewPetsActions is the PetsFile -> []PetsAction constructor.
+// Given a PetsFile, generate a list of PetsActions to perform.
 func NewPetsActions(trigger *PetsFile) []*PetsAction {
 	actions := []*PetsAction{}
 

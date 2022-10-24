@@ -13,9 +13,9 @@ import (
 	"strings"
 )
 
-// checkGlobalConstraints validates assumptions that must hold across all
-// configuration files
-func checkGlobalConstraints(files []*PetsFile) error {
+// CheckGlobalConstraints validates assumptions that must hold across all
+// configuration files.
+func CheckGlobalConstraints(files []*PetsFile) error {
 	// Keep the seen PetsFiles in a map so we can:
 	// 1) identify and print duplicate sources
 	// 2) avoid slices.Contains which is only in Go 1.18+ and not even bound to
@@ -85,14 +85,16 @@ func runPre(pf *PetsFile, pathErrorOK bool) bool {
 	}
 }
 
-// checkLocalConstraints validates assumptions that must hold for the
+// CheckLocalConstraints validates assumptions that must hold for the
 // individual configuration files. An error in one file means we're gonna skip
 // it but proceed with the rest. The function returns a slice of files for
 // which validation passed.
-func checkLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
+func CheckLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
 	var goodPets []*PetsFile
 
 	for _, pf := range files {
+		fmt.Printf("DEBUG: validating %s\n", pf.Source)
+
 		// Check if the specified package exists
 		if !pkgIsValid(pf) {
 			continue
@@ -103,6 +105,7 @@ func checkLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
 			continue
 		}
 
+		fmt.Printf("DEBUG: valid configuration file: %s\n", pf.Source)
 		goodPets = append(goodPets, pf)
 	}
 

@@ -1,7 +1,4 @@
 // Copyright (C) 2022 Emanuele Rocca
-//
-// Pets File representation. This is the central data structure of the system:
-// it is the in-memory representation of a configuration file (eg: sshd_config)
 
 package main
 
@@ -13,6 +10,8 @@ import (
 	"strings"
 )
 
+// PetsFile is the central data structure of the system: it is the in-memory
+// representation of a configuration file (eg: sshd_config)
 type PetsFile struct {
 	Source string
 	Pkg    string
