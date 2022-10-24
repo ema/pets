@@ -43,10 +43,16 @@ func NewPetsActions(trigger *PetsFile) []*PetsAction {
 
 	// First, install the package
 	if trigger.Pkg != "" {
-		actions = append(actions, &PetsAction{
-			Command: trigger.Pkg.InstallCommand(),
-			Trigger: trigger,
-		})
+
+		if trigger.Pkg.IsInstalled() {
+			fmt.Printf("DEBUG: %s already installed\n", trigger.Pkg)
+		} else {
+			fmt.Printf("INFO: %s not installed\n", trigger.Pkg)
+			actions = append(actions, &PetsAction{
+				Command: trigger.Pkg.InstallCommand(),
+				Trigger: trigger,
+			})
+		}
 	}
 
 	// Then, see if Source needs to be copied over Dest. No need to check if
