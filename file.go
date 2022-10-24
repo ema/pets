@@ -62,14 +62,14 @@ func (pf *PetsFile) AddMode(mode string) error {
 func (pf *PetsFile) AddPre(pre string) {
 	preArgs := strings.Fields(pre)
 	if len(preArgs) > 0 {
-		pf.Pre = exec.Command(preArgs[0], preArgs[1:]...)
+		pf.Pre = NewCmd(preArgs)
 	}
 }
 
 func (pf *PetsFile) AddPost(post string) {
 	postArgs := strings.Fields(post)
 	if len(postArgs) > 0 {
-		pf.Post = exec.Command(postArgs[0], postArgs[1:]...)
+		pf.Post = NewCmd(postArgs)
 	}
 }
 

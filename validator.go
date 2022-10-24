@@ -8,10 +8,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io/fs"
-	"os/exec"
 	"strings"
 )
 
@@ -36,17 +34,15 @@ func checkGlobalConstraints(files []*PetsFile) error {
 }
 
 func pkgIsValid(pf *PetsFile) bool {
-	var outb bytes.Buffer
-	aptCache := exec.Command("apt-cache", "policy", pf.Pkg)
-	aptCache.Stdout = &outb
+	aptCache := NewCmd([]string{"apt-cache", "policy", pf.Pkg})
+	stdout, _, err := RunCmd(aptCache)
 
-	err := aptCache.Run()
 	if err != nil {
 		fmt.Printf("ERROR: PkgIsValid command %s failed: %s\n", aptCache, err)
 		return false
 	}
 
-	if strings.HasPrefix(outb.String(), pf.Pkg) {
+	if strings.HasPrefix(stdout, pf.Pkg) {
 		// Return true if the output of apt-cache policy begins with Pkg
 		fmt.Printf("DEBUG: %s is a valid package name\n", pf.Pkg)
 		return true
