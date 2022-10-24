@@ -10,7 +10,6 @@ package main
 import (
 	"fmt"
 	"io/fs"
-	"strings"
 )
 
 // CheckGlobalConstraints validates assumptions that must hold across all
@@ -31,25 +30,6 @@ func CheckGlobalConstraints(files []*PetsFile) error {
 	}
 
 	return nil
-}
-
-func pkgIsValid(pf *PetsFile) bool {
-	aptCache := NewCmd([]string{"apt-cache", "policy", pf.Pkg})
-	stdout, _, err := RunCmd(aptCache)
-
-	if err != nil {
-		fmt.Printf("ERROR: PkgIsValid command %s failed: %s\n", aptCache, err)
-		return false
-	}
-
-	if strings.HasPrefix(stdout, pf.Pkg) {
-		// Return true if the output of apt-cache policy begins with Pkg
-		fmt.Printf("DEBUG: %s is a valid package name\n", pf.Pkg)
-		return true
-	} else {
-		fmt.Printf("ERROR: %s is not an available package\n", pf.Pkg)
-		return false
-	}
 }
 
 // runPre returns true if the pre-update validation command passes, or if it
@@ -96,7 +76,8 @@ func CheckLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
 		fmt.Printf("DEBUG: validating %s\n", pf.Source)
 
 		// Check if the specified package exists
-		if !pkgIsValid(pf) {
+		pp := &PetsPackage{Name: pf.Pkg}
+		if !pp.IsValid() {
 			continue
 		}
 
