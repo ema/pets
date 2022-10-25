@@ -34,18 +34,14 @@ func main() {
 
 	// *** Update visualizer ***
 	// Display:
-	// - packages to install (XXX: instead of installing all packages
-	//     one-by-one, we should get a list of package names and then apt
-	//     install A B C. This can be done by filtering goodPets for pet.Cause == PKG)
+	// - packages to install
 	// - pre-update command output
 	// - files created/modified
 	// - content diff
 	// - permissions/owner changes
 	// - which post-update commands will be executed
-	for _, pet := range goodPets {
-		for _, action := range NewPetsActions(pet) {
-			action.Visualize()
-		}
+	for _, action := range NewPetsActions(goodPets) {
+		action.Visualize()
 	}
 
 	// *** Update executor ***

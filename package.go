@@ -53,7 +53,8 @@ func (pp PetsPackage) IsInstalled() bool {
 	return false
 }
 
-// InstallCommand returns the command needed to install the given PetsPackage.
-func (pp PetsPackage) InstallCommand() *exec.Cmd {
-	return NewCmd([]string{"apt-get", "-y", "install", string(pp)})
+// InstallCommand returns the command needed to install packages on this
+// system.
+func InstallCommand() *exec.Cmd {
+	return NewCmd([]string{"apt-get", "-y", "install"})
 }

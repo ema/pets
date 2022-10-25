@@ -28,7 +28,11 @@ type PetsAction struct {
 
 // Visualize prints the PetsAction to stdout
 func (pa *PetsAction) Visualize() {
-	fmt.Printf("INFO: %s triggered command: %s\n", pa.Trigger.Source, pa.Command)
+	if pa.Trigger != nil {
+		fmt.Printf("INFO: %s triggered command: %s\n", pa.Trigger.Source, pa.Command)
+	} else {
+		fmt.Printf("INFO: command: %s\n", pa.Command)
+	}
 }
 
 // Perform executes the Command
@@ -48,46 +52,59 @@ func (pa *PetsAction) Perform() {
 	}
 }
 
-// NewPetsActions is the PetsFile -> []PetsAction constructor.
-// Given a PetsFile, generate a list of PetsActions to perform.
-func NewPetsActions(trigger *PetsFile) []*PetsAction {
+// NewPetsActions is the []PetsFile -> []PetsAction constructor.  Given a slice
+// of PetsFile(s), generate a list of PetsActions to perform.
+func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 	actions := []*PetsAction{}
 
-	// First, install the packages
-	for _, pkg := range trigger.Pkgs {
-		if pkg.IsInstalled() {
-			fmt.Printf("DEBUG: %s already installed\n", pkg)
-		} else {
-			fmt.Printf("INFO: %s not installed\n", pkg)
-			actions = append(actions, &PetsAction{
-				Cause:   PKG,
-				Command: pkg.InstallCommand(),
-				Trigger: trigger,
-			})
+	// First, install all needed packages. Build a list of all missing package
+	// names first, and then install all of them in one go. This is to avoid
+	// embarassing things like running in a loop apt install pkg1 ; apt install
+	// pkg2 ; apt install pkg3 like some configuration management systems do.
+	installPkgs := false
+	installCmd := InstallCommand()
+	for _, trigger := range triggers {
+		for _, pkg := range trigger.Pkgs {
+			if pkg.IsInstalled() {
+				fmt.Printf("DEBUG: %s already installed\n", pkg)
+			} else {
+				fmt.Printf("INFO: %s not installed\n", pkg)
+				installCmd.Args = append(installCmd.Args, string(pkg))
+				installPkgs = true
+			}
 		}
+	}
+
+	if installPkgs {
+		actions = append(actions, &PetsAction{
+			Cause:   PKG,
+			Command: installCmd,
+		})
 	}
 
 	// Then, see if Source needs to be copied over Dest. No need to check if
 	// Dest is empty, as it's a mandatory argument. Its presence is ensured at
 	// parsing time.
-	shaSource, err := Sha256(trigger.Source)
-	if err != nil {
-		fmt.Printf("ERROR: cannot determine sha256 of Source file %s: %v\n", trigger.Source, err)
-	}
+	for _, trigger := range triggers {
+		shaSource, err := Sha256(trigger.Source)
+		if err != nil {
+			fmt.Printf("ERROR: cannot determine sha256 of Source file %s: %v\n", trigger.Source, err)
+		}
 
-	shaDest, err := Sha256(trigger.Dest)
-	if err != nil {
-		fmt.Printf("ERROR: cannot determine sha256 of Dest file %s: %v\n", trigger.Dest, err)
-	}
+		shaDest, err := Sha256(trigger.Dest)
+		if err != nil {
+			fmt.Printf("ERROR: cannot determine sha256 of Dest file %s: %v\n", trigger.Dest, err)
+		}
 
-	if len(shaSource) > 0 && len(shaDest) > 0 && shaSource != shaDest {
-		fmt.Printf("DEBUG: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
+		if len(shaSource) > 0 && len(shaDest) > 0 && shaSource != shaDest {
+			fmt.Printf("DEBUG: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
 
-		actions = append(actions, &PetsAction{
-			Cause:   CONTENTS,
-			Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
-			Trigger: trigger,
-		})
+			actions = append(actions, &PetsAction{
+				Cause:   CONTENTS,
+				Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
+				Trigger: trigger,
+			})
+		}
 	}
 
 	return actions
