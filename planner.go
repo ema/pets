@@ -3,7 +3,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 )
 
@@ -11,12 +13,24 @@ import (
 type PetsCause int
 
 const (
-	PKG      = iota // required package is missing
-	CONTENTS        // configuration file contents differ
-	OWNER           // needs chown()
-	GROUP           // needs chgrp()
-	MODE            // needs chmod()
+	PKG    = iota // required package is missing
+	CREATE        // configuration file is missing and needs to be created
+	UPDATE        // configuration file differs and needs to be updated
+	OWNER         // needs chown()
+	GROUP         // needs chgrp()
+	MODE          // needs chmod()
 )
+
+func (pc PetsCause) String() string {
+	return map[PetsCause]string{
+		PKG:    "PACKAGE_INSTALL",
+		CREATE: "FILE_CREATE",
+		UPDATE: "FILE_UPDATE",
+		OWNER:  "CHOWN",
+		GROUP:  "CHGRP",
+		MODE:   "CHMOD",
+	}[pc]
+}
 
 // A PetsAction represents something to be done, namely running a certain
 // Command. PetsActions exist because of some Trigger, which is a PetsFile.
@@ -29,9 +43,9 @@ type PetsAction struct {
 // Visualize prints the PetsAction to stdout
 func (pa *PetsAction) Visualize() {
 	if pa.Trigger != nil {
-		fmt.Printf("INFO: %s triggered command: %s\n", pa.Trigger.Source, pa.Command)
+		fmt.Printf("INFO: [%s] %s triggered command: %s\n", pa.Cause, pa.Trigger.Source, pa.Command)
 	} else {
-		fmt.Printf("INFO: command: %s\n", pa.Command)
+		fmt.Printf("INFO: [%s] triggered command: %s\n", pa.Cause, pa.Command)
 	}
 }
 
@@ -86,21 +100,28 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 	}
 
 	shaDest, err := Sha256(trigger.Dest)
-	if err != nil {
+	if errors.Is(err, os.ErrNotExist) {
+		return &PetsAction{
+			Cause:   CREATE,
+			Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
+			Trigger: trigger,
+		}
+	} else if err != nil {
 		fmt.Printf("ERROR: cannot determine sha256 of Dest file %s: %v\n", trigger.Dest, err)
+		return nil
 	}
 
 	if len(shaSource) > 0 && len(shaDest) > 0 && shaSource != shaDest {
 		fmt.Printf("DEBUG: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
 
 		return &PetsAction{
-			Cause:   CONTENTS,
+			Cause:   UPDATE,
 			Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
 			Trigger: trigger,
 		}
 	}
 
-	return nil
+	panic("This should never have happened!")
 }
 
 // NewPetsActions is the []PetsFile -> []PetsAction constructor.  Given a slice
