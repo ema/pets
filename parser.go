@@ -94,7 +94,7 @@ func ParseModeline(line string, pf *PetsFile) error {
 			pf.AddMode(argument)
 		case "package":
 			// haha gotcha this one has no setter
-			pf.Pkg = PetsPackage(argument)
+			pf.Pkgs = append(pf.Pkgs, PetsPackage(argument))
 		case "pre":
 			pf.AddPre(argument)
 		case "post":

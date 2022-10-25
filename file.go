@@ -14,13 +14,29 @@ import (
 // representation of a configuration file (eg: sshd_config)
 type PetsFile struct {
 	Source string
-	Pkg    PetsPackage
+	Pkgs   []PetsPackage
 	Dest   string
 	User   *user.User
 	Group  *user.Group
 	Mode   os.FileMode
 	Pre    *exec.Cmd
 	Post   *exec.Cmd
+}
+
+func (pf *PetsFile) IsValid(pathErrorOK bool) bool {
+	// Check if the specified package(s) exists
+	for _, pkg := range pf.Pkgs {
+		if !pkg.IsValid() {
+			return false
+		}
+	}
+
+	// Check pre-update validation command
+	if !runPre(pf, pathErrorOK) {
+		return false
+	}
+
+	return true
 }
 
 func (pf *PetsFile) AddDest(dest string) {
@@ -77,7 +93,7 @@ func NewPetsFile(src, pkg, dest, userName, groupName, mode, pre, post string) (*
 
 	p := &PetsFile{
 		Source: src,
-		Pkg:    PetsPackage(pkg),
+		Pkgs:   []PetsPackage{PetsPackage(pkg)},
 	}
 
 	p.AddDest(dest)

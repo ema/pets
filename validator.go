@@ -75,18 +75,12 @@ func CheckLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
 	for _, pf := range files {
 		fmt.Printf("DEBUG: validating %s\n", pf.Source)
 
-		// Check if the specified package exists
-		if !pf.Pkg.IsValid() {
-			continue
+		if pf.IsValid(pathErrorOK) {
+			fmt.Printf("DEBUG: valid configuration file: %s\n", pf.Source)
+			goodPets = append(goodPets, pf)
+		} else {
+			fmt.Printf("ERROR: invalid configuration file: %s\n", pf.Source)
 		}
-
-		// Check pre-update validation command
-		if !runPre(pf, pathErrorOK) {
-			continue
-		}
-
-		fmt.Printf("DEBUG: valid configuration file: %s\n", pf.Source)
-		goodPets = append(goodPets, pf)
 	}
 
 	return goodPets

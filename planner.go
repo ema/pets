@@ -53,16 +53,15 @@ func (pa *PetsAction) Perform() {
 func NewPetsActions(trigger *PetsFile) []*PetsAction {
 	actions := []*PetsAction{}
 
-	// First, install the package
-	if trigger.Pkg != "" {
-
-		if trigger.Pkg.IsInstalled() {
-			fmt.Printf("DEBUG: %s already installed\n", trigger.Pkg)
+	// First, install the packages
+	for _, pkg := range trigger.Pkgs {
+		if pkg.IsInstalled() {
+			fmt.Printf("DEBUG: %s already installed\n", pkg)
 		} else {
-			fmt.Printf("INFO: %s not installed\n", trigger.Pkg)
+			fmt.Printf("INFO: %s not installed\n", pkg)
 			actions = append(actions, &PetsAction{
 				Cause:   PKG,
-				Command: trigger.Pkg.InstallCommand(),
+				Command: pkg.InstallCommand(),
 				Trigger: trigger,
 			})
 		}

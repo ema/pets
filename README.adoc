@@ -36,6 +36,7 @@ One example is worth a thousand words.
 ----
 # pets: destfile=/etc/ssh/sshd_config, owner=root, group=root, mode=0644
 # pets: package=ssh
+# pets: package=openssh-client-dbgsym
 # pets: pre=/usr/sbin/sshd -t -f
 # pets: post=/bin/systemctl reload ssh.service
 #
@@ -73,7 +74,8 @@ That's it! All supported configuration directives are showcased in the example a
 - owner -- the file owner, passed to chown(1)
 - group -- the group this file belongs to, passed chgrp(1)
 - mode -- octal mode for chmod(1)
-- package (optional) -- which package to install before creating the file.
+- package (optional) -- which package to install before creating the file. This
+  directive can be specificed more than once to install multiple packages.
 - pre (optional) -- validation command. This must succeed for the file to be
   created / updated.
 - post (optional) -- apply command. Usually something like reloading a service.

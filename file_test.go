@@ -48,7 +48,7 @@ func TestOK(t *testing.T) {
 		t.Errorf("Expecting err to be nil, got %v instead", err)
 	}
 
-	assertEquals(t, f.Pkg, PetsPackage("vim"))
+	assertEquals(t, f.Pkgs[0], PetsPackage("vim"))
 	assertEquals(t, f.Dest, "/tmp/vimrc")
 	assertEquals(t, f.Mode, os.FileMode(int(0600)))
 }
