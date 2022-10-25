@@ -74,6 +74,35 @@ func PkgsToInstall(triggers []*PetsFile) (bool, *exec.Cmd) {
 	return installPkgs, installCmd
 }
 
+// FileToCopy figures out if the given trigger represents a file that needs to
+// be updated, and returns the corresponding PetsAction.
+func FileToCopy(trigger *PetsFile) *PetsAction {
+	// See if Source needs to be copied over Dest. No need to check if Dest
+	// is empty, as it's a mandatory argument. Its presence is ensured at
+	// parsing time.
+	shaSource, err := Sha256(trigger.Source)
+	if err != nil {
+		fmt.Printf("ERROR: cannot determine sha256 of Source file %s: %v\n", trigger.Source, err)
+	}
+
+	shaDest, err := Sha256(trigger.Dest)
+	if err != nil {
+		fmt.Printf("ERROR: cannot determine sha256 of Dest file %s: %v\n", trigger.Dest, err)
+	}
+
+	if len(shaSource) > 0 && len(shaDest) > 0 && shaSource != shaDest {
+		fmt.Printf("DEBUG: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
+
+		return &PetsAction{
+			Cause:   CONTENTS,
+			Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
+			Trigger: trigger,
+		}
+	}
+
+	return nil
+}
+
 // NewPetsActions is the []PetsFile -> []PetsAction constructor.  Given a slice
 // of PetsFile(s), generate a list of PetsActions to perform.
 func NewPetsActions(triggers []*PetsFile) []*PetsAction {
@@ -90,28 +119,10 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 		})
 	}
 
+	// Then, figure out which files need to be modified/created.
 	for _, trigger := range triggers {
-		// See if Source needs to be copied over Dest. No need to check if Dest
-		// is empty, as it's a mandatory argument. Its presence is ensured at
-		// parsing time.
-		shaSource, err := Sha256(trigger.Source)
-		if err != nil {
-			fmt.Printf("ERROR: cannot determine sha256 of Source file %s: %v\n", trigger.Source, err)
-		}
-
-		shaDest, err := Sha256(trigger.Dest)
-		if err != nil {
-			fmt.Printf("ERROR: cannot determine sha256 of Dest file %s: %v\n", trigger.Dest, err)
-		}
-
-		if len(shaSource) > 0 && len(shaDest) > 0 && shaSource != shaDest {
-			fmt.Printf("DEBUG: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
-
-			actions = append(actions, &PetsAction{
-				Cause:   CONTENTS,
-				Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
-				Trigger: trigger,
-			})
+		if fileAction := FileToCopy(trigger); fileAction != nil {
+			actions = append(actions, fileAction)
 		}
 	}
 
