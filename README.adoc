@@ -3,25 +3,24 @@
 A configuration management system for computers that are Pets, not Cattle.
 
 This is for those who want to administer a few machines, all very different and
-all Very Important. Not only are those systems not Cattle, they're actually a
-bit more than Pets. They're almost Family. For example: your laptop,
-workstation, and that personal tiny server in Sweden. They are all named after
-something dear to you.
+all Very Important. Those systems are not Cattle! They're actually a bit more
+than Pets. They're almost Family. For example: your laptop, workstation, and
+that personal tiny server in Sweden. They are all named after something dear to
+you.
 
 == Design overview
 
-The idea behind Pets is that using a Configuration Management System should be
-as easy as administering a computer by hand. Pets can be used without doing
-anything other than modifying configuration files. After editing, say,
-sshd_config in the configuration directory watched by Pets, the system
-automatically apply the changes and reloads sshd. No ansible runs, no
-puppetmaster, nada.
+The idea behind Pets is that Configuration Management shouldn't be harder than
+administering a system by hand. Pets can be used without doing anything other
+than modifying configuration files. After editing, say, sshd_config in the
+configuration directory watched by Pets, the system automatically applies the
+changes and reloads sshd. No ansible runs, no puppetmaster, nada.
 
 Following from this basic idea, here are the design decisions:
 
 - Runs locally on a single machine
 - One directory holds the full configuration of the system
-- No variables, just your plain static config files
+- No variables, no templates, just your plain static config files
 - No dependencies between different components (eg: updating file A if and
   after file B was updated)
 - One single daemon watching the configuration directory and applying changes
@@ -69,16 +68,16 @@ UsePAM yes
 
 That's it! All supported configuration directives are showcased in the example above:
 
-- destfile -- where to install this file and the relevant permissions. This is
+- destfile (mandatory) -- where to install this file and the relevant permissions. This is
   the only mandatory directive.
 - owner -- the file owner, passed to chown(1)
-- group -- the group this file belongs to, passed chgrp(1)
+- group -- the group this file belongs to, passed to chgrp(1)
 - mode -- octal mode for chmod(1)
-- package (optional) -- which package to install before creating the file. This
+- package -- which package to install before creating the file. This
   directive can be specificed more than once to install multiple packages.
-- pre (optional) -- validation command. This must succeed for the file to be
+- pre -- validation command. This must succeed for the file to be
   created / updated.
-- post (optional) -- apply command. Usually something like reloading a service.
+- post -- apply command. Usually something like reloading a service.
 
 Configuration directives are passed as key/value arguments, either on multiple
 lines or separated by commas.
