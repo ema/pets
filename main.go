@@ -1,3 +1,5 @@
+// Copyright (C) 2022 Emanuele Rocca
+
 package main
 
 import "fmt"
@@ -37,8 +39,9 @@ func main() {
 	// - packages to install
 	// - files created/modified
 	// - content diff (maybe?)
+	// - owner changes
 	// TODO:
-	// - permissions/owner changes
+	// - permissions changes
 	// - which post-update commands will be executed
 	for _, action := range NewPetsActions(goodPets) {
 		action.Visualize()

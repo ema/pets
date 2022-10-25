@@ -3,10 +3,11 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
+	"strconv"
+	"syscall"
 )
 
 // PetsCause conveys the reason behind a given action.
@@ -100,7 +101,7 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 	}
 
 	shaDest, err := Sha256(trigger.Dest)
-	if errors.Is(err, os.ErrNotExist) {
+	if os.IsNotExist(err) {
 		return &PetsAction{
 			Cause:   CREATE,
 			Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
@@ -124,6 +125,44 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 	panic("This should never have happened!")
 }
 
+// OwnerChange returns a chown PetsAction or nil if no chown is needed.
+func OwnerChange(trigger *PetsFile) *PetsAction {
+	if trigger.User == nil {
+		// Return immediately if the file had no 'owner' directive
+		return nil
+	}
+
+	// The action to be performed is a chown of the file.
+	action := &PetsAction{
+		Cause:   OWNER,
+		Command: NewCmd([]string{"chown", trigger.User.Username, trigger.Dest}),
+		Trigger: trigger,
+	}
+
+	fileInfo, err := os.Stat(trigger.Dest)
+	if os.IsNotExist(err) {
+		// If the destination file is not there yet, prepare a chown
+		// for later on.
+		return action
+	}
+
+	uid, err := strconv.Atoi(trigger.User.Uid)
+	if err != nil {
+		// This should really never ever happen, unless we're
+		// running on Windows. :)
+		panic(err)
+	}
+
+	stat, _ := fileInfo.Sys().(*syscall.Stat_t)
+	if int(stat.Uid) == uid {
+		fmt.Printf("DEBUG: %s is owned by %s already\n", trigger.Dest, trigger.User.Username)
+		return nil
+	} else {
+		fmt.Printf("DEBUG: %s is owned by uid %d instead of %s\n", trigger.Dest, stat.Uid, trigger.User.Username)
+		return action
+	}
+}
+
 // NewPetsActions is the []PetsFile -> []PetsAction constructor.  Given a slice
 // of PetsFile(s), generate a list of PetsActions to perform.
 func NewPetsActions(triggers []*PetsFile) []*PetsAction {
@@ -140,10 +179,15 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 		})
 	}
 
-	// Then, figure out which files need to be modified/created.
 	for _, trigger := range triggers {
+		// Then, figure out which files need to be modified/created.
 		if fileAction := FileToCopy(trigger); fileAction != nil {
 			actions = append(actions, fileAction)
+		}
+
+		// Any owner changes needed
+		if chown := OwnerChange(trigger); chown != nil {
+			actions = append(actions, chown)
 		}
 	}
 
