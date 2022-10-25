@@ -14,6 +14,12 @@ func assertEquals(t *testing.T, a, b interface{}) {
 	}
 }
 
+func assertNoError(t *testing.T, err error) {
+	if err != nil {
+		t.Errorf("Expecting err to be nil, got %v instead", err)
+	}
+}
+
 func TestBadUser(t *testing.T) {
 	f, err := NewPetsFile("", "", "", "never-did-this-user-exist", "", "", "", "")
 
@@ -28,9 +34,8 @@ func TestBadUser(t *testing.T) {
 
 func TestShortModes(t *testing.T) {
 	f, err := NewPetsFile("", "", "", "root", "root", "600", "", "")
-	if err != nil {
-		t.Errorf("Expecting err to be nil, got %v instead", err)
-	}
+
+	assertNoError(t, err)
 
 	assertEquals(t, f.Mode, os.FileMode(int(0600)))
 
@@ -51,4 +56,28 @@ func TestOK(t *testing.T) {
 	assertEquals(t, f.Pkgs[0], PetsPackage("vim"))
 	assertEquals(t, f.Dest, "/tmp/vimrc")
 	assertEquals(t, f.Mode, os.FileMode(int(0600)))
+}
+
+func TestIsValid(t *testing.T) {
+	// Everything correct
+	f, err := NewPetsFile("/dev/null", "vim", "/dev/null", "root", "root", "0600", "/bin/true", "")
+	assertNoError(t, err)
+
+	assertEquals(t, f.IsValid(false), true)
+
+	// Bad package name
+	f, err = NewPetsFile("/dev/null", "not-an-actual-package", "/dev/null", "root", "root", "0600", "/bin/true", "")
+	assertNoError(t, err)
+
+	assertEquals(t, f.IsValid(false), false)
+
+	// Path error in validation command
+	f, err = NewPetsFile("/dev/null", "vim", "/dev/null", "root", "root", "0600", "/bin/whatever-but-not-a-valid-path", "")
+	assertNoError(t, err)
+
+	// Passing pathErrorOK=true to IsValid
+	assertEquals(t, f.IsValid(true), true)
+
+	// Passing pathErrorOK=false to IsValid
+	assertEquals(t, f.IsValid(false), false)
 }

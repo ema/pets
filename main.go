@@ -36,7 +36,8 @@ func main() {
 	// Display:
 	// - packages to install
 	// - files created/modified
-	// - content diff
+	// - content diff (maybe?)
+	// TODO:
 	// - permissions/owner changes
 	// - which post-update commands will be executed
 	for _, action := range NewPetsActions(goodPets) {

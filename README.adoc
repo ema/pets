@@ -4,9 +4,8 @@ A configuration management system for computers that are Pets, not Cattle.
 
 This is for those who want to administer a few machines, all very different and
 all Very Important. Those systems are not Cattle! They're actually a bit more
-than Pets. They're almost Family. For example: your laptop, workstation, and
-that personal tiny server in Sweden. They are all named after something dear to
-you.
+than Pets. They're almost Family. For example: a laptop, workstation, and
+that personal tiny server in Sweden. They are all named after something dear.
 
 == Design overview
 
@@ -20,7 +19,7 @@ Following from this basic idea, here are the design decisions:
 
 - Runs locally on a single machine
 - One directory holds the full configuration of the system
-- No variables, no templates, just your plain static config files
+- No variables, no templates, just plain static config files
 - No dependencies between different components (eg: updating file A if and
   after file B was updated)
 - One single daemon watching the configuration directory and applying changes
