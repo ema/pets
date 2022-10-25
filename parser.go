@@ -104,7 +104,7 @@ func ParseModeline(line string, pf *PetsFile) error {
 		}
 
 		// :)
-		fmt.Printf("DEBUG: keyword '%v', argument '%v'\n", keyword, argument)
+		//fmt.Printf("DEBUG: keyword '%v', argument '%v'\n", keyword, argument)
 	}
 
 	return nil

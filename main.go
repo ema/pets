@@ -35,7 +35,6 @@ func main() {
 	// *** Update visualizer ***
 	// Display:
 	// - packages to install
-	// - pre-update command output
 	// - files created/modified
 	// - content diff
 	// - permissions/owner changes
