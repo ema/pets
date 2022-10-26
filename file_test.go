@@ -8,18 +8,6 @@ import (
 	"testing"
 )
 
-func assertEquals(t *testing.T, a, b interface{}) {
-	if a != b {
-		t.Errorf("%v != %v", a, b)
-	}
-}
-
-func assertNoError(t *testing.T, err error) {
-	if err != nil {
-		t.Errorf("Expecting err to be nil, got %v instead", err)
-	}
-}
-
 func TestBadUser(t *testing.T) {
 	f, err := NewPetsFile("", "", "", "never-did-this-user-exist", "", "", "", "")
 

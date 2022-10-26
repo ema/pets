@@ -11,6 +11,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+
+	"testing"
 )
 
 // NewCmd is a wrapper for exec.Command. It builds a new *exec.Cmd from a slice
@@ -54,4 +56,17 @@ func Sha256(fileName string) (string, error) {
 	}
 
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+// Various test helpers
+func assertEquals(t *testing.T, a, b interface{}) {
+	if a != b {
+		t.Errorf("%v != %v", a, b)
+	}
+}
+
+func assertNoError(t *testing.T, err error) {
+	if err != nil {
+		t.Errorf("Expecting err to be nil, got %v instead", err)
+	}
 }
