@@ -125,20 +125,48 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 	panic("This should never have happened!")
 }
 
-// OwnerChange returns a chown PetsAction or nil if no chown is needed.
-func OwnerChange(trigger *PetsFile) *PetsAction {
-	if trigger.User == nil {
-		// Return immediately if the file had no 'owner' directive
+// Chown returns a chown PetsAction or nil if none is needed.
+func Chown(trigger *PetsFile) *PetsAction {
+	// Build arg (eg: 'root:staff', 'root', ':staff')
+	arg := ""
+	var wantUid, wantGid int
+	var err error
+
+	if trigger.User != nil {
+		arg = trigger.User.Username
+
+		// get the requested uid as integer
+		wantUid, err = strconv.Atoi(trigger.User.Uid)
+		if err != nil {
+			// This should really never ever happen, unless we're
+			// running on Windows. :)
+			panic(err)
+		}
+	}
+
+	if trigger.Group != nil {
+		arg = fmt.Sprintf("%s:%s", arg, trigger.Group.Name)
+
+		// get the requested gid as integer
+		wantGid, err = strconv.Atoi(trigger.Group.Gid)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if arg == "" {
+		// Return immediately if the file had no 'owner' / 'group' directives
 		return nil
 	}
 
 	// The action to be performed is a chown of the file.
 	action := &PetsAction{
 		Cause:   OWNER,
-		Command: NewCmd([]string{"chown", trigger.User.Username, trigger.Dest}),
+		Command: NewCmd([]string{"chown", arg, trigger.Dest}),
 		Trigger: trigger,
 	}
 
+	// stat(2) the destination file to see if a chown is needed
 	fileInfo, err := os.Stat(trigger.Dest)
 	if os.IsNotExist(err) {
 		// If the destination file is not there yet, prepare a chown
@@ -146,21 +174,20 @@ func OwnerChange(trigger *PetsFile) *PetsAction {
 		return action
 	}
 
-	uid, err := strconv.Atoi(trigger.User.Uid)
-	if err != nil {
-		// This should really never ever happen, unless we're
-		// running on Windows. :)
-		panic(err)
-	}
-
 	stat, _ := fileInfo.Sys().(*syscall.Stat_t)
-	if int(stat.Uid) == uid {
-		fmt.Printf("DEBUG: %s is owned by %s already\n", trigger.Dest, trigger.User.Username)
-		return nil
-	} else {
+
+	if trigger.User != nil && int(stat.Uid) != wantUid {
 		fmt.Printf("DEBUG: %s is owned by uid %d instead of %s\n", trigger.Dest, stat.Uid, trigger.User.Username)
 		return action
 	}
+
+	if trigger.Group != nil && int(stat.Gid) != wantGid {
+		fmt.Printf("DEBUG: %s is owned by gid %d instead of %s\n", trigger.Dest, stat.Gid, trigger.Group.Name)
+		return action
+	}
+
+	fmt.Printf("DEBUG: %s is owned by %d:%d already\n", trigger.Dest, stat.Uid, stat.Gid)
+	return nil
 }
 
 // NewPetsActions is the []PetsFile -> []PetsAction constructor.  Given a slice
@@ -186,7 +213,7 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 		}
 
 		// Any owner changes needed
-		if chown := OwnerChange(trigger); chown != nil {
+		if chown := Chown(trigger); chown != nil {
 			actions = append(actions, chown)
 		}
 	}

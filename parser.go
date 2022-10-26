@@ -87,9 +87,15 @@ func ParseModeline(line string, pf *PetsFile) error {
 		case "destfile":
 			pf.AddDest(argument)
 		case "owner":
-			pf.AddUser(argument)
+			err = pf.AddUser(argument)
+			if err != nil {
+				fmt.Printf("ERROR: unknown 'owner' %s, skipping directive\n", argument)
+			}
 		case "group":
-			pf.AddGroup(argument)
+			err = pf.AddGroup(argument)
+			if err != nil {
+				fmt.Printf("ERROR: unknown 'group' %s, skipping directive\n", argument)
+			}
 		case "mode":
 			pf.AddMode(argument)
 		case "package":
