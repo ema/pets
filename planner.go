@@ -18,7 +18,6 @@ const (
 	CREATE        // configuration file is missing and needs to be created
 	UPDATE        // configuration file differs and needs to be updated
 	OWNER         // needs chown()
-	GROUP         // needs chgrp()
 	MODE          // needs chmod()
 )
 
@@ -27,8 +26,7 @@ func (pc PetsCause) String() string {
 		PKG:    "PACKAGE_INSTALL",
 		CREATE: "FILE_CREATE",
 		UPDATE: "FILE_UPDATE",
-		OWNER:  "CHOWN",
-		GROUP:  "CHGRP",
+		OWNER:  "OWNER",
 		MODE:   "CHMOD",
 	}[pc]
 }
