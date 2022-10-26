@@ -25,3 +25,33 @@ func TestPkgsToInstall(t *testing.T) {
 	isTodo, _ = PkgsToInstall(petsFiles)
 	assertEquals(t, isTodo, true)
 }
+
+func TestFileToCopy(t *testing.T) {
+	pf, err := NewPetsFile("sample_pet/ssh/sshd_config", "ssh", "sample_pet/ssh/sshd_config", "root", "root", "0640", "", "")
+	assertNoError(t, err)
+
+	pa := FileToCopy(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+
+	pf, err = NewPetsFile("sample_pet/ssh/sshd_config", "ssh", "/tmp/polpette", "root", "root", "0640", "", "")
+	assertNoError(t, err)
+
+	pa = FileToCopy(pf)
+	if pa == nil {
+		t.Errorf("Expecting a PetsAction, got nil instead")
+	}
+
+	assertEquals(t, pa.Cause.String(), "FILE_CREATE")
+
+	pf, err = NewPetsFile("sample_pet/ssh/sshd_config", "ssh", "sample_pet/ssh/user_ssh_config", "root", "root", "0640", "", "")
+	assertNoError(t, err)
+
+	pa = FileToCopy(pf)
+	if pa == nil {
+		t.Errorf("Expecting a PetsAction, got nil instead")
+	}
+
+	assertEquals(t, pa.Cause.String(), "FILE_UPDATE")
+}

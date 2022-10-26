@@ -98,6 +98,7 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 	shaSource, err := Sha256(trigger.Source)
 	if err != nil {
 		fmt.Printf("ERROR: cannot determine sha256 of Source file %s: %v\n", trigger.Source, err)
+		return nil
 	}
 
 	shaDest, err := Sha256(trigger.Dest)
@@ -112,17 +113,18 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 		return nil
 	}
 
-	if len(shaSource) > 0 && len(shaDest) > 0 && shaSource != shaDest {
-		fmt.Printf("DEBUG: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
-
-		return &PetsAction{
-			Cause:   UPDATE,
-			Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
-			Trigger: trigger,
-		}
+	if shaSource == shaDest {
+		fmt.Printf("DEBUG: same sha256 for %s and %s: %s\n", trigger.Source, trigger.Dest, shaSource)
+		return nil
 	}
 
-	panic("This should never have happened!")
+	fmt.Printf("DEBUG: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
+
+	return &PetsAction{
+		Cause:   UPDATE,
+		Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
+		Trigger: trigger,
+	}
 }
 
 // Chown returns a chown PetsAction or nil if none is needed.
