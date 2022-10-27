@@ -41,17 +41,17 @@ type PetsAction struct {
 	Trigger *PetsFile
 }
 
-// Visualize prints the PetsAction to stdout
-func (pa *PetsAction) Visualize() {
+// String representation of a PetsAction
+func (pa *PetsAction) String() string {
 	if pa.Trigger != nil {
-		fmt.Printf("INFO: [%s] %s triggered command: %s\n", pa.Cause, pa.Trigger.Source, pa.Command)
+		return fmt.Sprintf("[%s] %s triggered command: '%s'", pa.Cause, pa.Trigger.Source, pa.Command)
 	} else {
-		fmt.Printf("INFO: [%s] triggered command: %s\n", pa.Cause, pa.Command)
+		return fmt.Sprintf("[%s] triggered command: '%s'", pa.Cause, pa.Command)
 	}
 }
 
 // Perform executes the Command
-func (pa *PetsAction) Perform() {
+func (pa *PetsAction) Perform() error {
 	stdout, stderr, err := RunCmd(pa.Command)
 
 	if err != nil {
@@ -65,6 +65,8 @@ func (pa *PetsAction) Perform() {
 	if len(stderr) > 0 {
 		fmt.Printf("ERROR: stderr from Perform() -> %v\n", stderr)
 	}
+
+	return err
 }
 
 // PkgsToInstall returns two values, a boolean and a command. The former is

@@ -34,6 +34,9 @@ func main() {
 
 	fmt.Println("DEBUG: * configuration validation ends *")
 
+	// Generate the list of actions to perform.
+	actions := NewPetsActions(goodPets)
+
 	// *** Update visualizer ***
 	// Display:
 	// - packages to install
@@ -42,8 +45,8 @@ func main() {
 	// - owner changes
 	// - permissions changes
 	// - which post-update commands will be executed
-	for _, action := range NewPetsActions(goodPets) {
-		action.Visualize()
+	for _, action := range actions {
+		fmt.Println("INFO:", action)
 	}
 
 	// *** Update executor ***
@@ -53,4 +56,13 @@ func main() {
 	// Update files
 	// Change permissions/owners
 	// Run post-update commands
+	for _, action := range actions {
+		fmt.Printf("INFO: running '%s'\n", action.Command)
+
+		err = action.Perform()
+		if err != nil {
+			fmt.Printf("ERROR: performing action %s: %s\n", action, err)
+			break
+		}
+	}
 }
