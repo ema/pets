@@ -60,6 +60,7 @@ func TestChmod(t *testing.T) {
 	// Expect Chmod() to return nil if the 'mode' directive is missing.
 	pf := &PetsFile{
 		Source: "/dev/null",
+		Dest:   "/dev/null",
 	}
 
 	pa := Chmod(pf)
@@ -70,7 +71,7 @@ func TestChmod(t *testing.T) {
 	pf.AddMode("0644")
 
 	pa = Chmod(pf)
-	if pa != nil {
-		t.Errorf("Expecting nil, got %v instead", pa)
-	}
+
+	assertEquals(t, pa.Cause.String(), "CHMOD")
+	assertEquals(t, pa.Command.String(), "/usr/bin/chmod 0644 /dev/null")
 }
