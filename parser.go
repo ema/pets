@@ -121,7 +121,7 @@ func ParseModeline(line string, pf *PetsFile) error {
 func ParseFiles(directory string) ([]*PetsFile, error) {
 	var petsFiles []*PetsFile
 
-	fmt.Printf("INFO: watching configuration directory '%s'\n", directory)
+	fmt.Printf("DEBUG: watching configuration directory '%s'\n", directory)
 
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		// This function is called once for each file in the Pets configuration
@@ -150,7 +150,7 @@ func ParseFiles(directory string) ([]*PetsFile, error) {
 			return nil
 		}
 
-		fmt.Printf("INFO: %d pets modelines found in %s\n", len(modelines), path)
+		fmt.Printf("DEBUG: %d pets modelines found in %s\n", len(modelines), path)
 
 		// Instantiate a PetsFile representation. The only thing we know so far
 		// is the source path. Every long journey begins with a single step!
