@@ -40,8 +40,8 @@ func main() {
 	// - files created/modified
 	// - content diff (maybe?)
 	// - owner changes
-	// TODO:
 	// - permissions changes
+	// TODO:
 	// - which post-update commands will be executed
 	for _, action := range NewPetsActions(goodPets) {
 		action.Visualize()

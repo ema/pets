@@ -116,7 +116,7 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 		return nil
 	}
 
-	fmt.Printf("DEBUG: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
+	fmt.Printf("INFO: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
 
 	return &PetsAction{
 		Cause:   UPDATE,
@@ -177,12 +177,12 @@ func Chown(trigger *PetsFile) *PetsAction {
 	stat, _ := fileInfo.Sys().(*syscall.Stat_t)
 
 	if trigger.User != nil && int(stat.Uid) != wantUid {
-		fmt.Printf("DEBUG: %s is owned by uid %d instead of %s\n", trigger.Dest, stat.Uid, trigger.User.Username)
+		fmt.Printf("INFO: %s is owned by uid %d instead of %s\n", trigger.Dest, stat.Uid, trigger.User.Username)
 		return action
 	}
 
 	if trigger.Group != nil && int(stat.Gid) != wantGid {
-		fmt.Printf("DEBUG: %s is owned by gid %d instead of %s\n", trigger.Dest, stat.Gid, trigger.Group.Name)
+		fmt.Printf("INFO: %s is owned by gid %d instead of %s\n", trigger.Dest, stat.Gid, trigger.Group.Name)
 		return action
 	}
 
@@ -222,11 +222,11 @@ func Chmod(trigger *PetsFile) *PetsAction {
 	oldMode := fileInfo.Mode()
 
 	if oldMode != newMode {
-		fmt.Printf("DEBUG: %s is %s instead of %s\n", trigger.Dest, oldMode, newMode)
+		fmt.Printf("INFO: %s is %s instead of %s\n", trigger.Dest, oldMode, newMode)
 		return action
 	}
 
-	fmt.Printf("DEBUG: %s is already %s\n", trigger.Dest, newMode)
+	fmt.Printf("DEBUG: %s is %s already\n", trigger.Dest, newMode)
 	return nil
 }
 
