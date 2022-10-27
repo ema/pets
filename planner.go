@@ -251,23 +251,28 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 	}
 
 	for _, trigger := range triggers {
+		actionFired := false
+
 		// Then, figure out which files need to be modified/created.
 		if fileAction := FileToCopy(trigger); fileAction != nil {
 			actions = append(actions, fileAction)
+			actionFired = true
 		}
 
 		// Any owner changes needed
 		if chown := Chown(trigger); chown != nil {
 			actions = append(actions, chown)
+			actionFired = true
 		}
 
 		// Any mode changes needed
 		if chmod := Chmod(trigger); chmod != nil {
 			actions = append(actions, chmod)
+			actionFired = true
 		}
 
 		// Finally, post-update commands
-		if trigger.Post != nil {
+		if trigger.Post != nil && actionFired {
 			actions = append(actions, &PetsAction{
 				Cause:   POST,
 				Command: trigger.Post,
