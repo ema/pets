@@ -19,6 +19,7 @@ const (
 	UPDATE        // configuration file differs and needs to be updated
 	OWNER         // needs chown()
 	MODE          // needs chmod()
+	POST          // post-update command
 )
 
 func (pc PetsCause) String() string {
@@ -28,6 +29,7 @@ func (pc PetsCause) String() string {
 		UPDATE: "FILE_UPDATE",
 		OWNER:  "OWNER",
 		MODE:   "CHMOD",
+		POST:   "POST_UPDATE",
 	}[pc]
 }
 
@@ -260,6 +262,14 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 		// Any mode changes needed
 		if chmod := Chmod(trigger); chmod != nil {
 			actions = append(actions, chmod)
+		}
+
+		// Finally, post-update commands
+		if trigger.Post != nil {
+			actions = append(actions, &PetsAction{
+				Cause:   POST,
+				Command: trigger.Post,
+			})
 		}
 	}
 
