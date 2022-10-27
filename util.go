@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strconv"
 
 	"testing"
 )
@@ -56,6 +57,11 @@ func Sha256(fileName string) (string, error) {
 	}
 
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+func StringToFileMode(mode string) (os.FileMode, error) {
+	octalMode, err := strconv.ParseInt(mode, 8, 64)
+	return os.FileMode(octalMode), err
 }
 
 // Various test helpers

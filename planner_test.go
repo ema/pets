@@ -55,3 +55,22 @@ func TestFileToCopy(t *testing.T) {
 
 	assertEquals(t, pa.Cause.String(), "FILE_UPDATE")
 }
+
+func TestChmod(t *testing.T) {
+	// Expect Chmod() to return nil if the 'mode' directive is missing.
+	pf := &PetsFile{
+		Source: "/dev/null",
+	}
+
+	pa := Chmod(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+
+	pf.AddMode("0644")
+
+	pa = Chmod(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+}

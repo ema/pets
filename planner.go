@@ -159,7 +159,7 @@ func Chown(trigger *PetsFile) *PetsAction {
 		return nil
 	}
 
-	// The action to be performed is a chown of the file.
+	// The action to (possibly) perform is a chown of the file.
 	action := &PetsAction{
 		Cause:   OWNER,
 		Command: NewCmd([]string{"chown", arg, trigger.Dest}),
@@ -190,6 +190,46 @@ func Chown(trigger *PetsFile) *PetsAction {
 	return nil
 }
 
+// Chmod returns a chmod PetsAction or nil if none is needed.
+func Chmod(trigger *PetsFile) *PetsAction {
+	if trigger.Mode == "" {
+		// Return immediately if the 'mode' directive was not specified.
+		return nil
+	}
+
+	// The action to (possibly) perform is a chmod of the file.
+	action := &PetsAction{
+		Cause:   MODE,
+		Command: NewCmd([]string{"chmod", trigger.Mode, trigger.Dest}),
+		Trigger: trigger,
+	}
+
+	// stat(2) the destination file to see if a chmod is needed
+	fileInfo, err := os.Stat(trigger.Dest)
+	if os.IsNotExist(err) {
+		// If the destination file is not there yet, prepare a mod
+		// for later on.
+		return action
+	}
+
+	// See if the desired mode and reality differ.
+	newMode, err := StringToFileMode(trigger.Mode)
+	if err != nil {
+		fmt.Println("ERROR: unexpected error in Chmod()", err)
+		return nil
+	}
+
+	oldMode := fileInfo.Mode()
+
+	if oldMode != newMode {
+		fmt.Printf("DEBUG: %s is %s instead of %s\n", trigger.Dest, oldMode, newMode)
+		return action
+	}
+
+	fmt.Printf("DEBUG: %s is already %s\n", trigger.Dest, newMode)
+	return nil
+}
+
 // NewPetsActions is the []PetsFile -> []PetsAction constructor.  Given a slice
 // of PetsFile(s), generate a list of PetsActions to perform.
 func NewPetsActions(triggers []*PetsFile) []*PetsAction {
@@ -215,6 +255,11 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 		// Any owner changes needed
 		if chown := Chown(trigger); chown != nil {
 			actions = append(actions, chown)
+		}
+
+		// Any mode changes needed
+		if chmod := Chmod(trigger); chmod != nil {
+			actions = append(actions, chmod)
 		}
 	}
 

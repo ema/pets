@@ -3,10 +3,8 @@
 package main
 
 import (
-	"os"
 	"os/exec"
 	"os/user"
-	"strconv"
 	"strings"
 )
 
@@ -18,9 +16,10 @@ type PetsFile struct {
 	Dest   string
 	User   *user.User
 	Group  *user.Group
-	Mode   os.FileMode
-	Pre    *exec.Cmd
-	Post   *exec.Cmd
+	// use string instead of os.FileMode to avoid converting back and forth
+	Mode string
+	Pre  *exec.Cmd
+	Post *exec.Cmd
 }
 
 func (pf *PetsFile) IsValid(pathErrorOK bool) bool {
@@ -65,13 +64,12 @@ func (pf *PetsFile) AddGroup(groupName string) error {
 }
 
 func (pf *PetsFile) AddMode(mode string) error {
-	octalMode, err := strconv.ParseInt(mode, 8, 64)
-	if err != nil {
-		return err
+	_, err := StringToFileMode(mode)
+	if err == nil {
+		// The specified 'mode' string is valid.
+		pf.Mode = mode
 	}
-
-	pf.Mode = os.FileMode(octalMode)
-	return nil
+	return err
 }
 
 func (pf *PetsFile) AddPre(pre string) {
