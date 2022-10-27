@@ -3,8 +3,6 @@
 package main
 
 import (
-	"os"
-
 	"testing"
 )
 
@@ -25,14 +23,14 @@ func TestShortModes(t *testing.T) {
 
 	assertNoError(t, err)
 
-	assertEquals(t, f.Mode, os.FileMode(int(0600)))
+	assertEquals(t, f.Mode, "600")
 
 	f, err = NewPetsFile("", "", "", "root", "root", "755", "", "")
 	if err != nil {
 		t.Errorf("Expecting err to be nil, got %v instead", err)
 	}
 
-	assertEquals(t, f.Mode, os.FileMode(int(0755)))
+	assertEquals(t, f.Mode, "755")
 }
 
 func TestOK(t *testing.T) {
@@ -43,7 +41,7 @@ func TestOK(t *testing.T) {
 
 	assertEquals(t, f.Pkgs[0], PetsPackage("vim"))
 	assertEquals(t, f.Dest, "/tmp/vimrc")
-	assertEquals(t, f.Mode, os.FileMode(int(0600)))
+	assertEquals(t, f.Mode, "0600")
 }
 
 func TestIsValid(t *testing.T) {
