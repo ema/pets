@@ -3,7 +3,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os/exec"
 	"strings"
 )
@@ -16,7 +16,7 @@ func (pp PetsPackage) aptCachePolicy() string {
 	stdout, _, err := RunCmd(aptCache)
 
 	if err != nil {
-		fmt.Printf("ERROR: aptCachePolicy() command %s failed: %s\n", aptCache, err)
+		log.Printf("ERROR: aptCachePolicy() command %s failed: %s\n", aptCache, err)
 		return ""
 	}
 
@@ -29,10 +29,10 @@ func (pp PetsPackage) IsValid() bool {
 
 	if strings.HasPrefix(stdout, string(pp)) {
 		// Return true if the output of apt-cache policy begins with pp
-		fmt.Printf("DEBUG: %s is a valid package name\n", pp)
+		log.Printf("DEBUG: %s is a valid package name\n", pp)
 		return true
 	} else {
-		fmt.Printf("ERROR: %s is not an available package\n", pp)
+		log.Printf("ERROR: %s is not an available package\n", pp)
 		return false
 	}
 }
@@ -49,7 +49,7 @@ func (pp PetsPackage) IsInstalled() bool {
 		}
 	}
 
-	fmt.Printf("ERROR: no 'Installed:' line in apt-cache policy %s\n", pp)
+	log.Printf("ERROR: no 'Installed:' line in apt-cache policy %s\n", pp)
 	return false
 }
 

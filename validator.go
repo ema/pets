@@ -10,6 +10,7 @@ package main
 import (
 	"fmt"
 	"io/fs"
+	"log"
 )
 
 // CheckGlobalConstraints validates assumptions that must hold across all
@@ -53,24 +54,24 @@ func runPre(pf *PetsFile, pathErrorOK bool) bool {
 	_, pathError := err.(*fs.PathError)
 
 	if err == nil {
-		fmt.Printf("INFO: pre-update command %s successful\n", pf.Pre.Args)
+		log.Printf("INFO: pre-update command %s successful\n", pf.Pre.Args)
 	} else if pathError && pathErrorOK {
 		// The command has failed because the validation command itself is
 		// missing. This could be a chicken-and-egg problem: at this stage
 		// configuration is not validated yet, hence any "package" directives
 		// have not been applied.  Do not consider this as a failure, for now.
-		fmt.Printf("INFO: pre-update command %s failed due to PathError. Ignoring for now\n", pf.Pre.Args)
+		log.Printf("INFO: pre-update command %s failed due to PathError. Ignoring for now\n", pf.Pre.Args)
 	} else {
-		fmt.Printf("ERROR: pre-update command %s: %s\n", pf.Pre.Args, err)
+		log.Printf("ERROR: pre-update command %s: %s\n", pf.Pre.Args, err)
 		toReturn = false
 	}
 
 	if len(stdout) > 0 {
-		fmt.Printf("INFO: stdout: %s", stdout)
+		log.Printf("INFO: stdout: %s", stdout)
 	}
 
 	if len(stderr) > 0 {
-		fmt.Printf("ERROR: stderr: %s", stderr)
+		log.Printf("ERROR: stderr: %s", stderr)
 	}
 
 	return toReturn
@@ -84,13 +85,13 @@ func CheckLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
 	var goodPets []*PetsFile
 
 	for _, pf := range files {
-		fmt.Printf("DEBUG: validating %s\n", pf.Source)
+		log.Printf("DEBUG: validating %s\n", pf.Source)
 
 		if pf.IsValid(pathErrorOK) {
-			fmt.Printf("DEBUG: valid configuration file: %s\n", pf.Source)
+			log.Printf("DEBUG: valid configuration file: %s\n", pf.Source)
 			goodPets = append(goodPets, pf)
 		} else {
-			fmt.Printf("ERROR: invalid configuration file: %s\n", pf.Source)
+			log.Printf("ERROR: invalid configuration file: %s\n", pf.Source)
 		}
 	}
 
