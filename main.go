@@ -13,6 +13,7 @@ import (
 func main() {
 	// Parse CLI flags
 	debug := flag.Bool("debug", false, "Show debugging output")
+	dryRun := flag.Bool("dry-run", false, "Only show changes without applying them")
 	flag.Parse()
 
 	// Setup logger
@@ -28,7 +29,7 @@ func main() {
 	}
 	log.SetOutput(filter)
 
-	// *** Config parser + watcher ***
+	// *** Config parser ***
 
 	// Generate a list of PetsFiles from the given config directory.
 	log.Println("[DEBUG] * configuration parsing starts *")
@@ -70,6 +71,11 @@ func main() {
 	// - which post-update commands will be executed
 	for _, action := range actions {
 		log.Println("[INFO]", action)
+	}
+
+	if *dryRun {
+		log.Println("[INFO] user requested dry-run mode, not applying any changes")
+		return
 	}
 
 	// *** Update executor ***
