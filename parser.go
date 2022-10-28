@@ -122,7 +122,7 @@ func ParseModeline(line string, pf *PetsFile) error {
 func ParseFiles(directory string) ([]*PetsFile, error) {
 	var petsFiles []*PetsFile
 
-	log.Printf("[DEBUG] watching configuration directory '%s'\n", directory)
+	log.Printf("[DEBUG] using configuration directory '%s'\n", directory)
 
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		// This function is called once for each file in the Pets configuration

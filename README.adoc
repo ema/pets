@@ -11,9 +11,9 @@ that personal tiny server in Sweden. They are all named after something dear.
 
 The idea behind Pets is that Configuration Management shouldn't be harder than
 administering a system by hand. Pets can be used without doing anything other
-than modifying configuration files. After editing, say, sshd_config in the
-configuration directory watched by Pets, the system automatically applies the
-changes and reloads sshd. No ansible runs, no puppetmaster, nada.
+than modifying configuration files. Just locally run pets(1) after editing,
+say, nginx.conf. The system applies the changes and reloads nginx. No need to
+ssh somewhere, no puppetmaster to configure, nada.
 
 Following from this basic idea, here are the design decisions:
 
@@ -22,8 +22,8 @@ Following from this basic idea, here are the design decisions:
 - No variables, no templates, just plain static config files
 - No dependencies between different components (eg: updating file A if and
   after file B was updated)
-- One single daemon watching the configuration directory and applying changes
-  immediately
+- A single one-shot program reading the configuration directory and applying
+  changes
 - Changes are applied only if basic syntax checks pass
 - Main interaction mechanism inspired by vim modelines
 
