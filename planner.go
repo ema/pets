@@ -56,15 +56,15 @@ func (pa *PetsAction) Perform() error {
 	stdout, stderr, err := RunCmd(pa.Command)
 
 	if err != nil {
-		log.Printf("ERROR: running Perform() -> %v\n", err)
+		log.Printf("[ERROR] running Perform() -> %v\n", err)
 	}
 
 	if len(stdout) > 0 {
-		log.Printf("INFO: stdout from Perform() -> %v\n", stdout)
+		log.Printf("[INFO] stdout from Perform() -> %v\n", stdout)
 	}
 
 	if len(stderr) > 0 {
-		log.Printf("ERROR: stderr from Perform() -> %v\n", stderr)
+		log.Printf("[ERROR] stderr from Perform() -> %v\n", stderr)
 	}
 
 	return err
@@ -80,9 +80,9 @@ func PkgsToInstall(triggers []*PetsFile) (bool, *exec.Cmd) {
 	for _, trigger := range triggers {
 		for _, pkg := range trigger.Pkgs {
 			if pkg.IsInstalled() {
-				log.Printf("DEBUG: %s already installed\n", pkg)
+				log.Printf("[DEBUG] %s already installed\n", pkg)
 			} else {
-				log.Printf("INFO: %s not installed\n", pkg)
+				log.Printf("[INFO] %s not installed\n", pkg)
 				installCmd.Args = append(installCmd.Args, string(pkg))
 				installPkgs = true
 			}
@@ -100,7 +100,7 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 	// parsing time.
 	shaSource, err := Sha256(trigger.Source)
 	if err != nil {
-		log.Printf("ERROR: cannot determine sha256 of Source file %s: %v\n", trigger.Source, err)
+		log.Printf("[ERROR] cannot determine sha256 of Source file %s: %v\n", trigger.Source, err)
 		return nil
 	}
 
@@ -112,16 +112,16 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 			Trigger: trigger,
 		}
 	} else if err != nil {
-		log.Printf("ERROR: cannot determine sha256 of Dest file %s: %v\n", trigger.Dest, err)
+		log.Printf("[ERROR] cannot determine sha256 of Dest file %s: %v\n", trigger.Dest, err)
 		return nil
 	}
 
 	if shaSource == shaDest {
-		log.Printf("DEBUG: same sha256 for %s and %s: %s\n", trigger.Source, trigger.Dest, shaSource)
+		log.Printf("[DEBUG] same sha256 for %s and %s: %s\n", trigger.Source, trigger.Dest, shaSource)
 		return nil
 	}
 
-	log.Printf("INFO: sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
+	log.Printf("[INFO] sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
 
 	return &PetsAction{
 		Cause:   UPDATE,
@@ -182,16 +182,16 @@ func Chown(trigger *PetsFile) *PetsAction {
 	stat, _ := fileInfo.Sys().(*syscall.Stat_t)
 
 	if trigger.User != nil && int(stat.Uid) != wantUid {
-		log.Printf("INFO: %s is owned by uid %d instead of %s\n", trigger.Dest, stat.Uid, trigger.User.Username)
+		log.Printf("[INFO] %s is owned by uid %d instead of %s\n", trigger.Dest, stat.Uid, trigger.User.Username)
 		return action
 	}
 
 	if trigger.Group != nil && int(stat.Gid) != wantGid {
-		log.Printf("INFO: %s is owned by gid %d instead of %s\n", trigger.Dest, stat.Gid, trigger.Group.Name)
+		log.Printf("[INFO] %s is owned by gid %d instead of %s\n", trigger.Dest, stat.Gid, trigger.Group.Name)
 		return action
 	}
 
-	log.Printf("DEBUG: %s is owned by %d:%d already\n", trigger.Dest, stat.Uid, stat.Gid)
+	log.Printf("[DEBUG] %s is owned by %d:%d already\n", trigger.Dest, stat.Uid, stat.Gid)
 	return nil
 }
 
@@ -220,18 +220,18 @@ func Chmod(trigger *PetsFile) *PetsAction {
 	// See if the desired mode and reality differ.
 	newMode, err := StringToFileMode(trigger.Mode)
 	if err != nil {
-		log.Println("ERROR: unexpected error in Chmod()", err)
+		log.Println("[ERROR] unexpected error in Chmod()", err)
 		return nil
 	}
 
 	oldMode := fileInfo.Mode()
 
 	if oldMode != newMode {
-		log.Printf("INFO: %s is %s instead of %s\n", trigger.Dest, oldMode, newMode)
+		log.Printf("[INFO] %s is %s instead of %s\n", trigger.Dest, oldMode, newMode)
 		return action
 	}
 
-	log.Printf("DEBUG: %s is %s already\n", trigger.Dest, newMode)
+	log.Printf("[DEBUG] %s is %s already\n", trigger.Dest, newMode)
 	return nil
 }
 

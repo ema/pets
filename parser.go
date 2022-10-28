@@ -64,7 +64,7 @@ func ParseModeline(line string, pf *PetsFile) error {
 	if len(matches) < 2 {
 		// We thought this was a pets modeline -- but then it turned out to be
 		// something different, very different indeed.
-		return fmt.Errorf("ERROR: invalid pets modeline: %v", line)
+		return fmt.Errorf("[ERROR] invalid pets modeline: %v", line)
 	}
 
 	components := strings.Split(matches[1], ",")
@@ -78,7 +78,7 @@ func ParseModeline(line string, pf *PetsFile) error {
 		keyword, argument, found := strings.Cut(elem, "=")
 
 		// Just in case something bad should happen
-		badKeyword := fmt.Errorf("ERROR: invalid keyword/argument '%v'", elem)
+		badKeyword := fmt.Errorf("[ERROR] invalid keyword/argument '%v'", elem)
 
 		if !found {
 			return badKeyword // See? :(
@@ -90,12 +90,12 @@ func ParseModeline(line string, pf *PetsFile) error {
 		case "owner":
 			err = pf.AddUser(argument)
 			if err != nil {
-				log.Printf("ERROR: unknown 'owner' %s, skipping directive\n", argument)
+				log.Printf("[ERROR] unknown 'owner' %s, skipping directive\n", argument)
 			}
 		case "group":
 			err = pf.AddGroup(argument)
 			if err != nil {
-				log.Printf("ERROR: unknown 'group' %s, skipping directive\n", argument)
+				log.Printf("[ERROR] unknown 'group' %s, skipping directive\n", argument)
 			}
 		case "mode":
 			pf.AddMode(argument)
@@ -111,7 +111,7 @@ func ParseModeline(line string, pf *PetsFile) error {
 		}
 
 		// :)
-		//log.Printf("DEBUG: keyword '%v', argument '%v'\n", keyword, argument)
+		//log.Printf("[DEBUG] keyword '%v', argument '%v'\n", keyword, argument)
 	}
 
 	return nil
@@ -122,7 +122,7 @@ func ParseModeline(line string, pf *PetsFile) error {
 func ParseFiles(directory string) ([]*PetsFile, error) {
 	var petsFiles []*PetsFile
 
-	log.Printf("DEBUG: watching configuration directory '%s'\n", directory)
+	log.Printf("[DEBUG] watching configuration directory '%s'\n", directory)
 
 	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		// This function is called once for each file in the Pets configuration
@@ -151,7 +151,7 @@ func ParseFiles(directory string) ([]*PetsFile, error) {
 			return nil
 		}
 
-		log.Printf("DEBUG: %d pets modelines found in %s\n", len(modelines), path)
+		log.Printf("[DEBUG] %d pets modelines found in %s\n", len(modelines), path)
 
 		// Instantiate a PetsFile representation. The only thing we know so far
 		// is the source path. Every long journey begins with a single step!
@@ -172,11 +172,11 @@ func ParseFiles(directory string) ([]*PetsFile, error) {
 		if pf.Dest == "" {
 			// Destile is a mandatory argument. If we did not find any, consider it an
 			// error.
-			log.Println(fmt.Errorf("ERROR: No 'destfile' directive found in '%s'", path))
+			log.Println(fmt.Errorf("[ERROR] No 'destfile' directive found in '%s'", path))
 			return nil
 		}
 
-		log.Printf("DEBUG: '%s' pets syntax OK\n", path)
+		log.Printf("[DEBUG] '%s' pets syntax OK\n", path)
 		petsFiles = append(petsFiles, pf)
 		return nil
 	})

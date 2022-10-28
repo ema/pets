@@ -25,7 +25,7 @@ func CheckGlobalConstraints(files []*PetsFile) error {
 	for _, pf := range files {
 		other, exist := seen[pf.Dest]
 		if exist {
-			return fmt.Errorf("ERROR: duplicate definition for '%s': '%s' and '%s'\n", pf.Dest, pf.Source, other.Source)
+			return fmt.Errorf("[ERROR] duplicate definition for '%s': '%s' and '%s'\n", pf.Dest, pf.Source, other.Source)
 		}
 		seen[pf.Dest] = pf
 	}
@@ -54,24 +54,24 @@ func runPre(pf *PetsFile, pathErrorOK bool) bool {
 	_, pathError := err.(*fs.PathError)
 
 	if err == nil {
-		log.Printf("INFO: pre-update command %s successful\n", pf.Pre.Args)
+		log.Printf("[INFO] pre-update command %s successful\n", pf.Pre.Args)
 	} else if pathError && pathErrorOK {
 		// The command has failed because the validation command itself is
 		// missing. This could be a chicken-and-egg problem: at this stage
 		// configuration is not validated yet, hence any "package" directives
 		// have not been applied.  Do not consider this as a failure, for now.
-		log.Printf("INFO: pre-update command %s failed due to PathError. Ignoring for now\n", pf.Pre.Args)
+		log.Printf("[INFO] pre-update command %s failed due to PathError. Ignoring for now\n", pf.Pre.Args)
 	} else {
-		log.Printf("ERROR: pre-update command %s: %s\n", pf.Pre.Args, err)
+		log.Printf("[ERROR] pre-update command %s: %s\n", pf.Pre.Args, err)
 		toReturn = false
 	}
 
 	if len(stdout) > 0 {
-		log.Printf("INFO: stdout: %s", stdout)
+		log.Printf("[INFO] stdout: %s", stdout)
 	}
 
 	if len(stderr) > 0 {
-		log.Printf("ERROR: stderr: %s", stderr)
+		log.Printf("[ERROR] stderr: %s", stderr)
 	}
 
 	return toReturn
@@ -85,13 +85,13 @@ func CheckLocalConstraints(files []*PetsFile, pathErrorOK bool) []*PetsFile {
 	var goodPets []*PetsFile
 
 	for _, pf := range files {
-		log.Printf("DEBUG: validating %s\n", pf.Source)
+		log.Printf("[DEBUG] validating %s\n", pf.Source)
 
 		if pf.IsValid(pathErrorOK) {
-			log.Printf("DEBUG: valid configuration file: %s\n", pf.Source)
+			log.Printf("[DEBUG] valid configuration file: %s\n", pf.Source)
 			goodPets = append(goodPets, pf)
 		} else {
-			log.Printf("ERROR: invalid configuration file: %s\n", pf.Source)
+			log.Printf("[ERROR] invalid configuration file: %s\n", pf.Source)
 		}
 	}
 
