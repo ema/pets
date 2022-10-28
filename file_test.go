@@ -18,6 +18,18 @@ func TestBadUser(t *testing.T) {
 	}
 }
 
+func TestBadGroup(t *testing.T) {
+	f, err := NewPetsFile("", "", "", "root", "never-did-this-user-exist", "", "", "")
+
+	if err == nil {
+		t.Errorf("Expecting an error, got nil instead")
+	}
+
+	if f != nil {
+		t.Errorf("Expecting nil error, got %v instead", f)
+	}
+}
+
 func TestShortModes(t *testing.T) {
 	f, err := NewPetsFile("", "", "", "root", "root", "600", "", "")
 
