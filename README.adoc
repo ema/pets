@@ -1,19 +1,32 @@
 = PETS
 
-A configuration management system for computers that are Pets, not Cattle.
+A Configuration Management System for computers that are Pets, not Cattle.
 
-This is for those who want to administer a few machines, all very different and
-all Very Important. Those systems are not Cattle! They're actually a bit more
-than Pets. They're almost Family. For example: a laptop, workstation, and
-that personal tiny server in Sweden. They are all named after something dear.
+This is for people who need to administer a handful of machines, all fairly
+different from each other and all Very Important. Those systems are not Cattle!
+They're actually a bit more than Pets. They're almost Family. For example: a
+laptop, workstation, and that personal tiny server in Sweden. They are all
+named after something dear.
 
 == Design overview
 
-The idea behind Pets is that Configuration Management shouldn't be harder than
-administering a system by hand. Pets can be used without doing anything other
-than modifying configuration files. Just locally run pets(1) after editing,
-say, nginx.conf. The system applies the changes and reloads nginx. No need to
-ssh somewhere, no puppetmaster to configure, nada.
+The idea behind Pets is that Configuration Management of individual hosts
+shouldn't be harder than administering the system by hand. Other configuration
+management tools typically focus on usage scenarios involving complex
+relationships between multiple, fairly homogeneous systems: for example,
+setting up a bunch of application servers behind a load-balancer, or
+configuring a database and its replicas. For that you need a templating
+language, some way to store and share information about the various systems,
+and a way to either push the changes to all hosts or pull them from a central
+location. All that complexity can discourage from using a configuration
+management tool to begin with: why bother with Chef syntax and ERB templates if
+you just need to edit a few files?
+
+Pets instead focuses on the individual, local machine. No need to ssh anywhere,
+no puppetmaster to configure, nada. It works by reading your regular, static
+configuration files (say muttrc) with added pets modelines, inspired by the
+concept of vim modelines. Pets can copy your configuration files to the right
+place, fix permissions, install packages, and run commands upon file update.
 
 Following from this basic idea, here are the design decisions:
 
@@ -67,8 +80,7 @@ UsePAM yes
 
 That's it! All supported configuration directives are showcased in the example above:
 
-- destfile (mandatory) -- where to install this file and the relevant permissions. This is
-  the only mandatory directive.
+- destfile (mandatory) -- where to install this file. This is the only mandatory directive.
 - owner -- the file owner, passed to chown(1)
 - group -- the group this file belongs to, passed to chgrp(1)
 - mode -- octal mode for chmod(1)
