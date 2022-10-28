@@ -6,12 +6,20 @@ import (
 	"flag"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/hashicorp/logutils"
 )
 
+func defaultConfDir() string {
+	home := os.Getenv("HOME")
+	return filepath.Join(home, "pets")
+}
+
 func main() {
 	// Parse CLI flags
+	var confDir string
+	flag.StringVar(&confDir, "conf-dir", defaultConfDir(), "Pets configuration directory")
 	debug := flag.Bool("debug", false, "Show debugging output")
 	dryRun := flag.Bool("dry-run", false, "Only show changes without applying them")
 	flag.Parse()
@@ -34,7 +42,7 @@ func main() {
 	// Generate a list of PetsFiles from the given config directory.
 	log.Println("[DEBUG] * configuration parsing starts *")
 
-	files, err := ParseFiles("sample_pet")
+	files, err := ParseFiles(confDir)
 	if err != nil {
 		log.Println(err)
 	}
