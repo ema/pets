@@ -2,24 +2,15 @@
 
 package main
 
-import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
+import "fmt"
 
-	"github.com/fsnotify/fsnotify"
-)
-
-const CONFDIR = "/home/ema/pets_config"
-
-func doWork() {
+func main() {
 	// *** Config parser + watcher ***
 
 	// Generate a list of PetsFiles from the given config directory.
 	fmt.Println("DEBUG: * configuration parsing starts *")
 
-	files, err := ParseFiles(CONFDIR)
+	files, err := ParseFiles("sample_pet")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -74,64 +65,4 @@ func doWork() {
 			break
 		}
 	}
-}
-
-func subDirs(directory string) []string {
-	var directories []string
-
-	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
-		if err == nil && info.IsDir() {
-			directories = append(directories, path)
-		}
-		return err
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	return directories
-}
-
-func main() {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		panic(err)
-	}
-	defer watcher.Close()
-
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
-				//fmt.Println("DEBUG: event ->", event)
-				if event.Has(fsnotify.Write) {
-					filename := filepath.Base(event.Name)
-					fmt.Printf("DEBUG: modified file '%s'\n", filename)
-					if !strings.HasPrefix(filename, ".") {
-						doWork()
-					}
-				}
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					return
-				}
-				fmt.Println("ERROR:", err)
-			}
-		}
-	}()
-
-	for _, directory := range subDirs(CONFDIR) {
-		fmt.Printf("DEBUG: watching '%s' for changes\n", directory)
-		err = watcher.Add(directory)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	// Block main goroutine forever
-	<-make(chan struct{})
 }
