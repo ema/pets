@@ -1,5 +1,7 @@
 = PETS
 
+image:https://github.com/ema/pets/actions/workflows/go.yml/badge.svg[link="https://github.com/ema/pets/actions/workflows/go.yml"]
+
 A Configuration Management System for computers that are Pets, not Cattle.
 
 This is for people who need to administer a handful of machines, all fairly
