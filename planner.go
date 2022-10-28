@@ -79,7 +79,9 @@ func PkgsToInstall(triggers []*PetsFile) (bool, *exec.Cmd) {
 
 	for _, trigger := range triggers {
 		for _, pkg := range trigger.Pkgs {
-			if pkg.IsInstalled() {
+			if SliceContains(installCmd.Args, string(pkg)) {
+				log.Printf("[DEBUG] %s already marked to be installed\n", pkg)
+			} else if pkg.IsInstalled() {
 				log.Printf("[DEBUG] %s already installed\n", pkg)
 			} else {
 				log.Printf("[INFO] %s not installed\n", pkg)

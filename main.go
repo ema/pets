@@ -47,6 +47,8 @@ func main() {
 		log.Println(err)
 	}
 
+	log.Printf("[INFO] Found %d pets configuration files", len(files))
+
 	log.Println("[DEBUG] * configuration parsing ends *")
 
 	// *** Config validator ***

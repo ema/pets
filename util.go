@@ -64,6 +64,15 @@ func StringToFileMode(mode string) (os.FileMode, error) {
 	return os.FileMode(octalMode), err
 }
 
+func SliceContains(slice []string, elem string) bool {
+	for _, value := range slice {
+		if value == elem {
+			return true
+		}
+	}
+	return false
+}
+
 // Various test helpers
 func assertEquals(t *testing.T, a, b interface{}) {
 	if a != b {
