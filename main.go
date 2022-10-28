@@ -3,6 +3,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 
@@ -10,10 +11,19 @@ import (
 )
 
 func main() {
+	// Parse CLI flags
+	debug := flag.Bool("debug", false, "Show debugging output")
+	flag.Parse()
+
 	// Setup logger
+	minLogLevel := "INFO"
+	if *debug {
+		minLogLevel = "DEBUG"
+	}
+
 	filter := &logutils.LevelFilter{
 		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "ERROR"},
-		MinLevel: logutils.LogLevel("INFO"),
+		MinLevel: logutils.LogLevel(minLogLevel),
 		Writer:   os.Stderr,
 	}
 	log.SetOutput(filter)
