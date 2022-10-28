@@ -2,9 +2,22 @@
 
 package main
 
-import "log"
+import (
+	"log"
+	"os"
+
+	"github.com/hashicorp/logutils"
+)
 
 func main() {
+	// Setup logger
+	filter := &logutils.LevelFilter{
+		Levels:   []logutils.LogLevel{"DEBUG", "WARN", "ERROR"},
+		MinLevel: logutils.LogLevel("WARN"),
+		Writer:   os.Stderr,
+	}
+	log.SetOutput(filter)
+
 	// *** Config parser + watcher ***
 
 	// Generate a list of PetsFiles from the given config directory.
