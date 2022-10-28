@@ -33,7 +33,7 @@ func main() {
 	filter := &logutils.LevelFilter{
 		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "ERROR"},
 		MinLevel: logutils.LogLevel(minLogLevel),
-		Writer:   os.Stderr,
+		Writer:   os.Stdout,
 	}
 	log.SetOutput(filter)
 
