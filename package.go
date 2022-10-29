@@ -11,6 +11,33 @@ import (
 // A PetsPackage represents a distribution package.
 type PetsPackage string
 
+// PackageManager available on the system. APT on Debian-based distros, YUM on
+// RedHad and derivatives.
+type PackageManager int
+
+const (
+	APT = iota
+	YUM
+)
+
+func WhichPackageManager() PackageManager {
+	var err error
+
+	apt := NewCmd([]string{"which", "apt"})
+	_, _, err = RunCmd(apt)
+	if err == nil {
+		return APT
+	}
+
+	yum := NewCmd([]string{"which", "yum"})
+	_, _, err = RunCmd(yum)
+	if err == nil {
+		return YUM
+	}
+
+	panic("Unknown Package Manager")
+}
+
 func (pp PetsPackage) aptCachePolicy() string {
 	aptCache := NewCmd([]string{"apt-cache", "policy", string(pp)})
 	stdout, _, err := RunCmd(aptCache)
@@ -56,5 +83,11 @@ func (pp PetsPackage) IsInstalled() bool {
 // InstallCommand returns the command needed to install packages on this
 // system.
 func InstallCommand() *exec.Cmd {
-	return NewCmd([]string{"apt-get", "-y", "install"})
+	switch WhichPackageManager() {
+	case APT:
+		return NewCmd([]string{"apt-get", "-y", "install"})
+	case YUM:
+		return NewCmd([]string{"yum", "-y", "install"})
+	}
+	return nil
 }
