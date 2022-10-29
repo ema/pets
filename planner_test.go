@@ -74,4 +74,40 @@ func TestChmod(t *testing.T) {
 
 	assertEquals(t, pa.Cause.String(), "CHMOD")
 	assertEquals(t, pa.Command.String(), "/usr/bin/chmod 0644 /dev/null")
+
+	pf.Dest = "/etc/passwd"
+	pa = Chmod(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+}
+
+func TestChown(t *testing.T) {
+	pf := &PetsFile{
+		Source: "/dev/null",
+		Dest:   "/etc/passwd",
+	}
+
+	// If no 'user' or 'group' directives are specified
+	pa := Chown(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+
+	// File owned by 'root:root' already
+	pf.AddUser("root")
+	pf.AddGroup("root")
+	pa = Chown(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+
+	pf.AddUser("nobody")
+	pa = Chown(pf)
+	if pa == nil {
+		t.Errorf("Expecting some action, got nil instead")
+	}
+
+	assertEquals(t, pa.Cause.String(), "OWNER")
+	assertEquals(t, pa.Command.String(), "/usr/bin/chown nobody:root /etc/passwd")
 }
