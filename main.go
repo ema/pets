@@ -23,21 +23,24 @@ func ParseFlags() (string, bool, bool) {
 	return confDir, *debug, *dryRun
 }
 
-func main() {
-	confDir, debug, dryRun := ParseFlags()
-
-	// Setup logger
+// GetLogFilter returns a LevelFilter suitable for log.SetOutput().
+func GetLogFilter(debug bool) *logutils.LevelFilter {
 	minLogLevel := "INFO"
 	if debug {
 		minLogLevel = "DEBUG"
 	}
 
-	filter := &logutils.LevelFilter{
+	return &logutils.LevelFilter{
 		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "ERROR"},
 		MinLevel: logutils.LogLevel(minLogLevel),
 		Writer:   os.Stdout,
 	}
-	log.SetOutput(filter)
+}
+
+func main() {
+	confDir, debug, dryRun := ParseFlags()
+
+	log.SetOutput(GetLogFilter(debug))
 
 	// *** Config parser ***
 
