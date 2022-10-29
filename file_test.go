@@ -56,7 +56,7 @@ func TestOK(t *testing.T) {
 	assertEquals(t, f.Mode, "0600")
 }
 
-func TestIsValid(t *testing.T) {
+func TestFileIsValid(t *testing.T) {
 	// Everything correct
 	f, err := NewPetsFile("/dev/null", "vim", "/dev/null", "root", "root", "0600", "/bin/true", "")
 	assertNoError(t, err)
