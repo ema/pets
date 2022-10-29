@@ -11,22 +11,24 @@ import (
 	"github.com/hashicorp/logutils"
 )
 
-func defaultConfDir() string {
-	home := os.Getenv("HOME")
-	return filepath.Join(home, "pets")
-}
-
-func main() {
-	// Parse CLI flags
+// ParseFlags parses the CLI flags and returns: the configuration directory as
+// string, a bool for debugging output, and another bool for dryRun.
+func ParseFlags() (string, bool, bool) {
 	var confDir string
-	flag.StringVar(&confDir, "conf-dir", defaultConfDir(), "Pets configuration directory")
+	defaultConfDir := filepath.Join(os.Getenv("HOME"), "pets")
+	flag.StringVar(&confDir, "conf-dir", defaultConfDir, "Pets configuration directory")
 	debug := flag.Bool("debug", false, "Show debugging output")
 	dryRun := flag.Bool("dry-run", false, "Only show changes without applying them")
 	flag.Parse()
+	return confDir, *debug, *dryRun
+}
+
+func main() {
+	confDir, debug, dryRun := ParseFlags()
 
 	// Setup logger
 	minLogLevel := "INFO"
-	if *debug {
+	if debug {
 		minLogLevel = "DEBUG"
 	}
 
@@ -83,7 +85,7 @@ func main() {
 		log.Println("[INFO]", action)
 	}
 
-	if *dryRun {
+	if dryRun {
 		log.Println("[INFO] user requested dry-run mode, not applying any changes")
 		return
 	}
