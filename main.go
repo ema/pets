@@ -42,6 +42,13 @@ func main() {
 
 	log.SetOutput(GetLogFilter(debug))
 
+	// Print distro family
+	family := WhichPackageManager()
+	if family == APT {
+		log.Println("[DEBUG] Running on a Debian-like system")
+	} else if family == YUM {
+		log.Println("[DEBUG] Running on a RedHat-like system")
+	}
 	// *** Config parser ***
 
 	// Generate a list of PetsFiles from the given config directory.
