@@ -10,6 +10,21 @@ They're actually a bit more than Pets. They're almost Family. For example: a
 laptop, workstation, and that personal tiny server in Sweden. They are all
 named after something dear.
 
+== Example
+
+One example is worth a thousand words! Give user "ema" sudo rights with pets.
+Create a file with the following contents under `$HOME/pets/`, run `pets` as
+root, done. The file can be called whatever you want. Note that pets will
+install the `sudo` package for you if missing.
+
+----
+# pets: destfile=/etc/sudoers.d/ema, owner=root, group=root, mode=0440
+# pets: package=sudo
+# pets: pre=/usr/sbin/visudo -cf
+
+ema ALL=(ALL:ALL) NOPASSWD:ALL
+----
+
 == Design overview
 
 The idea behind Pets is that Configuration Management of individual hosts
@@ -47,9 +62,9 @@ part, that was before I settled on a one-shot approach.
 
 image::design.png[]
 
-== How does it work
+== Configuration directives
 
-One example is worth a thousand words.
+Here's an example of custom sshd_config:
 
 ----
 # pets: destfile=/etc/ssh/sshd_config, owner=root, group=root, mode=0644
