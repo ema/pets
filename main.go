@@ -107,13 +107,17 @@ func main() {
 	// Update files
 	// Change permissions/owners
 	// Run post-update commands
+	exitStatus := 0
 	for _, action := range actions {
 		log.Printf("[INFO] running '%s'\n", action.Command)
 
 		err = action.Perform()
 		if err != nil {
 			log.Printf("[ERROR] performing action %s: %s\n", action, err)
+			exitStatus = 1
 			break
 		}
 	}
+
+	os.Exit(exitStatus)
 }
