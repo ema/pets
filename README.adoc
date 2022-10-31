@@ -42,6 +42,11 @@ Following from this basic idea, here are the design decisions:
 - Changes are applied only if basic syntax checks pass
 - Main interaction mechanism inspired by vim modelines
 
+Here's the initial design document in all its beauty. Ignore the "watcher"
+part, that was before I settled on a one-shot approach.
+
+image::design.png[]
+
 == How does it work
 
 One example is worth a thousand words.
