@@ -9,24 +9,20 @@ import (
 func TestBadUser(t *testing.T) {
 	f, err := NewPetsFile("", "", "", "never-did-this-user-exist", "", "", "", "")
 
-	if err == nil {
-		t.Errorf("Expecting an error, got nil instead")
-	}
+	assertError(t, err)
 
 	if f != nil {
-		t.Errorf("Expecting nil error, got %v instead", f)
+		t.Errorf("Expecting f to be nil, got %v instead", f)
 	}
 }
 
 func TestBadGroup(t *testing.T) {
 	f, err := NewPetsFile("", "", "", "root", "never-did-this-user-exist", "", "", "")
 
-	if err == nil {
-		t.Errorf("Expecting an error, got nil instead")
-	}
+	assertError(t, err)
 
 	if f != nil {
-		t.Errorf("Expecting nil error, got %v instead", f)
+		t.Errorf("Expecting f to be nil, got %v instead", f)
 	}
 }
 
@@ -38,18 +34,15 @@ func TestShortModes(t *testing.T) {
 	assertEquals(t, f.Mode, "600")
 
 	f, err = NewPetsFile("", "", "", "root", "root", "755", "", "")
-	if err != nil {
-		t.Errorf("Expecting err to be nil, got %v instead", err)
-	}
+
+	assertNoError(t, err)
 
 	assertEquals(t, f.Mode, "755")
 }
 
 func TestOK(t *testing.T) {
 	f, err := NewPetsFile("syntax on\n", "vim", "/tmp/vimrc", "root", "root", "0600", "cat -n /etc/motd /etc/passwd", "df")
-	if err != nil {
-		t.Errorf("Expecting err to be nil, got %v instead", err)
-	}
+	assertNoError(t, err)
 
 	assertEquals(t, f.Pkgs[0], PetsPackage("vim"))
 	assertEquals(t, f.Dest, "/tmp/vimrc")
