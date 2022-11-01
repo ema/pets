@@ -12,7 +12,7 @@ import (
 type PetsPackage string
 
 // PackageManager available on the system. APT on Debian-based distros, YUM on
-// RedHad and derivatives.
+// RedHat and derivatives.
 type PackageManager int
 
 const (

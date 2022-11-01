@@ -85,3 +85,9 @@ func assertNoError(t *testing.T, err error) {
 		t.Errorf("Expecting err to be nil, got %v instead", err)
 	}
 }
+
+func assertError(t *testing.T, err error) {
+	if err == nil {
+		t.Errorf("Expecting an error, got nil instead")
+	}
+}
