@@ -27,6 +27,33 @@ install the `sudo` package for you if missing.
 ema ALL=(ALL:ALL) NOPASSWD:ALL
 ----
 
+== Usage
+
+The following options are supported:
+
+----
+$ ./pets -h
+Usage of ./pets:
+  -conf-dir string
+        Pets configuration directory (default "/home/ema/pets")
+  -debug
+        Show debugging output
+  -dry-run
+        Only show changes without applying them
+----
+
+Let's say you've decided to put your configuration files under `/etc/pets`. The
+system can then be used with:
+
+----
+# pets -conf-dir /etc/pets
+----
+
+See https://github.com/ema/pets/tree/master/sample_pet[sample_pet] for a basic
+example of what your `/etc/pets` can look like. Note that directory structure
+is arbitrary, you can have as many directories as you want, call them what you
+want, and so on.
+
 == Design overview
 
 The idea behind Pets is that Configuration Management of individual hosts
