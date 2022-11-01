@@ -29,10 +29,16 @@ ema ALL=(ALL:ALL) NOPASSWD:ALL
 
 == Usage
 
+Build and install pets with:
+
+----
+$ go install github.com/ema/pets@latest
+----
+
 The following options are supported:
 
 ----
-$ ./pets -h
+$ pets -h
 Usage of ./pets:
   -conf-dir string
         Pets configuration directory (default "/home/ema/pets")
