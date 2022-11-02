@@ -54,7 +54,7 @@ func (pp PetsPackage) getPkgInfo() string {
 	case YUM:
 		pkgInfo = NewCmd([]string{"yum", "info", string(pp)})
 	case APK:
-		pkgInfo = NewCmd([]string{"apk", "seach", "-e", string(pp)})
+		pkgInfo = NewCmd([]string{"apk", "search", "-e", string(pp)})
 	}
 
 	stdout, _, err := RunCmd(pkgInfo)
