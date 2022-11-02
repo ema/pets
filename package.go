@@ -126,16 +126,17 @@ func (pp PetsPackage) IsInstalled() bool {
 			log.Printf("[ERROR] running %s: '%s'", installed, err)
 			return false
 		}
-
-		if family == APK {
-			installed := NewCmd([]string{"apk", "info", "-qe", string(pp)})
-			stdout, _, err := RunCmd(installed)
-			if err != nil {
-				log.Printf("[ERROR] running %s: '%s'", installed, err)
-				return false
-			}
-
 		return len(stdout) > 0
+	}
+
+	if family == APK {
+		installed := NewCmd([]string{"apk", "info", "-qe", string(pp)})
+		stdout, _, err := RunCmd(installed)
+		if err != nil {
+			log.Printf("[ERROR] running %s: '%s'", installed, err)
+			return false
+		}
+		return true
 	}
 
 	return false
