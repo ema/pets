@@ -36,7 +36,7 @@ func WhichPackageManager() PackageManager {
 		return YUM
 	}
 
-	apk := NewCmd([]string{"apk", "--help"})
+	apk := NewCmd([]string{"apk", "--version"})
 	_, _, err = RunCmd(apk)
 	if err == nil {
 		return APK
