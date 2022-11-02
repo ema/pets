@@ -25,6 +25,7 @@ tasks:
  -
     name: install-go
     language: Bash
-    code: sudo apk add go \
+    code: |
+      sudo apk add go \
       --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
 
