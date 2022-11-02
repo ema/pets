@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/hashicorp/logutils"
 )
@@ -38,6 +39,8 @@ func GetLogFilter(debug bool) *logutils.LevelFilter {
 }
 
 func main() {
+	startTime := time.Now()
+
 	confDir, debug, dryRun := ParseFlags()
 
 	log.SetOutput(GetLogFilter(debug))
@@ -118,6 +121,8 @@ func main() {
 			break
 		}
 	}
+
+	log.Printf("[INFO] pets run took %v\n", time.Since(startTime).Round(time.Millisecond))
 
 	os.Exit(exitStatus)
 }
