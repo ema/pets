@@ -3,6 +3,8 @@
 package main
 
 import (
+	"log"
+	"os"
 	"os/exec"
 	"os/user"
 	"strings"
@@ -22,6 +24,36 @@ type PetsFile struct {
 	Post *exec.Cmd
 }
 
+// NeedsCopy returns PetsCause UPDATE if Source needs to be copied over Dest,
+// CREATE if the Destination file does not exist yet, NONE otherwise.
+func (pf *PetsFile) NeedsCopy() PetsCause {
+	if pf.Source == "" {
+		return NONE
+	}
+
+	shaSource, err := Sha256(pf.Source)
+	if err != nil {
+		log.Printf("[ERROR] cannot determine sha256 of Source file %s: %v\n", pf.Source, err)
+		return NONE
+	}
+
+	shaDest, err := Sha256(pf.Dest)
+	if os.IsNotExist(err) {
+		return CREATE
+	} else if err != nil {
+		log.Printf("[ERROR] cannot determine sha256 of Dest file %s: %v\n", pf.Dest, err)
+		return NONE
+	}
+
+	if shaSource == shaDest {
+		log.Printf("[DEBUG] same sha256 for %s and %s: %s\n", pf.Source, pf.Dest, shaSource)
+		return NONE
+	}
+
+	log.Printf("[DEBUG] sha256[%s]=%s != sha256[%s]=%s\n", pf.Source, shaSource, pf.Dest, shaDest)
+	return UPDATE
+}
+
 func (pf *PetsFile) IsValid(pathErrorOK bool) bool {
 	// Check if the specified package(s) exists
 	for _, pkg := range pf.Pkgs {
@@ -30,8 +62,8 @@ func (pf *PetsFile) IsValid(pathErrorOK bool) bool {
 		}
 	}
 
-	// Check pre-update validation command
-	if !runPre(pf, pathErrorOK) {
+	// Check pre-update validation command if the file has changed.
+	if pf.NeedsCopy() != NONE && !runPre(pf, pathErrorOK) {
 		return false
 	}
 

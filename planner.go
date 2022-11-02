@@ -15,7 +15,8 @@ import (
 type PetsCause int
 
 const (
-	PKG    = iota // required package is missing
+	NONE   = iota // no reason at all
+	PKG           // required package is missing
 	CREATE        // configuration file is missing and needs to be created
 	UPDATE        // configuration file differs and needs to be updated
 	OWNER         // needs chown()
@@ -97,38 +98,16 @@ func PkgsToInstall(triggers []*PetsFile) (bool, *exec.Cmd) {
 // FileToCopy figures out if the given trigger represents a file that needs to
 // be updated, and returns the corresponding PetsAction.
 func FileToCopy(trigger *PetsFile) *PetsAction {
-	// See if Source needs to be copied over Dest. No need to check if Dest
-	// is empty, as it's a mandatory argument. Its presence is ensured at
-	// parsing time.
-	shaSource, err := Sha256(trigger.Source)
-	if err != nil {
-		log.Printf("[ERROR] cannot determine sha256 of Source file %s: %v\n", trigger.Source, err)
-		return nil
-	}
+	cause := trigger.NeedsCopy()
 
-	shaDest, err := Sha256(trigger.Dest)
-	if os.IsNotExist(err) {
+	if cause == NONE {
+		return nil
+	} else {
 		return &PetsAction{
-			Cause:   CREATE,
+			Cause:   cause,
 			Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
 			Trigger: trigger,
 		}
-	} else if err != nil {
-		log.Printf("[ERROR] cannot determine sha256 of Dest file %s: %v\n", trigger.Dest, err)
-		return nil
-	}
-
-	if shaSource == shaDest {
-		log.Printf("[DEBUG] same sha256 for %s and %s: %s\n", trigger.Source, trigger.Dest, shaSource)
-		return nil
-	}
-
-	log.Printf("[INFO] sha256[%s]=%s != sha256[%s]=%s\n", trigger.Source, shaSource, trigger.Dest, shaDest)
-
-	return &PetsAction{
-		Cause:   UPDATE,
-		Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
-		Trigger: trigger,
 	}
 }
 

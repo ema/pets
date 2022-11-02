@@ -49,21 +49,31 @@ func TestOK(t *testing.T) {
 	assertEquals(t, f.Mode, "0600")
 }
 
-func TestFileIsValid(t *testing.T) {
+func TestFileIsValidTrue(t *testing.T) {
 	// Everything correct
 	f, err := NewPetsFile("/dev/null", "vim", "/dev/null", "root", "root", "0600", "/bin/true", "")
 	assertNoError(t, err)
 
 	assertEquals(t, f.IsValid(false), true)
+}
 
+func TestFileIsValidBadPackage(t *testing.T) {
 	// Bad package name
-	f, err = NewPetsFile("/dev/null", "not-an-actual-package", "/dev/null", "root", "root", "0600", "/bin/true", "")
+	f, err := NewPetsFile("/dev/null", "not-an-actual-package", "/dev/null", "root", "root", "0600", "/bin/true", "")
 	assertNoError(t, err)
 
 	assertEquals(t, f.IsValid(false), false)
+}
 
+func TestFileIsValidPrePathError(t *testing.T) {
 	// Path error in validation command
-	f, err = NewPetsFile("/dev/null", "vim", "/dev/null", "root", "root", "0600", "/bin/whatever-but-not-a-valid-path", "")
+	f, err := NewPetsFile("README.adoc", "vim", "/etc/motd", "root", "root", "0600", "/bin/whatever-but-not-a-valid-path", "")
+	assertNoError(t, err)
+	assertEquals(t, f.IsValid(true), true)
+}
+
+func TestFileIsValidPathError(t *testing.T) {
+	f, err := NewPetsFile("README.adoc", "vim", "/etc/motd", "root", "root", "0600", "/bin/whatever-but-not-a-valid-path", "")
 	assertNoError(t, err)
 
 	// Passing pathErrorOK=true to IsValid
