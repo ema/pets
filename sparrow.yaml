@@ -1,0 +1,28 @@
+tasks:
+ -
+  name: go_test
+  language: Bash
+  code: |
+    set -e
+    go version
+    cd source
+    go test -v
+  default: true
+  depends:
+    -
+      name: go_build
+ -
+  name: go_build
+  language: Bash
+  code: |
+    set -e
+    go version
+    cd source
+    go build -v
+  depends:
+    -
+      name: install-go
+ -
+    name: install-go
+    language: Bash
+    code: sudo apk add go
