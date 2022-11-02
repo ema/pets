@@ -53,7 +53,6 @@ func (pp PetsPackage) getPkgInfo() string {
 		pkgInfo = NewCmd([]string{"apt-cache", "policy", string(pp)})
 	case YUM:
 		pkgInfo = NewCmd([]string{"yum", "info", string(pp)})
-	}
 	case APK:
 		pkgInfo = NewCmd([]string{"apk", "seach", "-e", string(pp)})
 	}
@@ -150,7 +149,6 @@ func InstallCommand() *exec.Cmd {
 		return NewCmd([]string{"apt-get", "-y", "install"})
 	case YUM:
 		return NewCmd([]string{"yum", "-y", "install"})
-	}
 	case APK:
 		return NewCmd([]string{"apk", "add"})
 	}
