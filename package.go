@@ -18,6 +18,7 @@ type PackageManager int
 const (
 	APT = iota
 	YUM
+	APK
 )
 
 func WhichPackageManager() PackageManager {
@@ -35,6 +36,12 @@ func WhichPackageManager() PackageManager {
 		return YUM
 	}
 
+	apk := NewCmd([]string{"apk", "--help"})
+	_, _, err = RunCmd(yum)
+	if err == nil {
+		return APK
+	}
+
 	panic("Unknown Package Manager")
 }
 
@@ -46,6 +53,9 @@ func (pp PetsPackage) getPkgInfo() string {
 		pkgInfo = NewCmd([]string{"apt-cache", "policy", string(pp)})
 	case YUM:
 		pkgInfo = NewCmd([]string{"yum", "info", string(pp)})
+	}
+	case APK:
+		pkgInfo = NewCmd([]string{"apk", "seach", "-e", string(pp)})
 	}
 
 	stdout, _, err := RunCmd(pkgInfo)
@@ -81,6 +91,12 @@ func (pp PetsPackage) IsValid() bool {
 		}
 	}
 
+	if family == APK && strings.HasPrefix(stdout, string(pp)) {
+		// Return true if the output of apk search -e begins with pp
+		log.Printf("[DEBUG] %s is a valid package name\n", pp)
+		return true
+	}
+
 	log.Printf("[ERROR] %s is not an available package\n", pp)
 	return false
 }
@@ -112,6 +128,14 @@ func (pp PetsPackage) IsInstalled() bool {
 			return false
 		}
 
+		if family == APK {
+			installed := NewCmd([]string{"apk", "info", "-qe", string(pp)})
+			stdout, _, err := RunCmd(installed)
+			if err != nil {
+				log.Printf("[ERROR] running %s: '%s'", installed, err)
+				return false
+			}
+
 		return len(stdout) > 0
 	}
 
@@ -127,5 +151,8 @@ func InstallCommand() *exec.Cmd {
 	case YUM:
 		return NewCmd([]string{"yum", "-y", "install"})
 	}
-	return nil
+	case APK:
+		return NewCmd([]string{"apk", "add"})
+	}
+  return nil
 }
