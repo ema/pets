@@ -37,7 +37,7 @@ func WhichPackageManager() PackageManager {
 	}
 
 	apk := NewCmd([]string{"apk", "--help"})
-	_, _, err = RunCmd(yum)
+	_, _, err = RunCmd(apk)
 	if err == nil {
 		return APK
 	}
@@ -131,7 +131,7 @@ func (pp PetsPackage) IsInstalled() bool {
 
 	if family == APK {
 		installed := NewCmd([]string{"apk", "info", "-qe", string(pp)})
-		stdout, _, err := RunCmd(installed)
+		_, _, err := RunCmd(installed)
 		if err != nil {
 			log.Printf("[ERROR] running %s: '%s'", installed, err)
 			return false
