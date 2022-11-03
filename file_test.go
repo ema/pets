@@ -82,3 +82,15 @@ func TestFileIsValidPathError(t *testing.T) {
 	// Passing pathErrorOK=false to IsValid
 	assertEquals(t, f.IsValid(false), false)
 }
+
+func TestNeedsCopyNoSource(t *testing.T) {
+	f := &PetsFile{}
+	f.Source = ""
+	assertEquals(t, int(f.NeedsCopy()), int(NONE))
+}
+
+func TestNeedsCopySourceNotThere(t *testing.T) {
+	f := &PetsFile{}
+	f.Source = "something-very-funny.lol"
+	assertEquals(t, int(f.NeedsCopy()), int(NONE))
+}
