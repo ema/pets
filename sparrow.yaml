@@ -1,3 +1,7 @@
+image:
+  - melezhik/sparrow:alpine
+  - melezhik/sparrow:debian
+  
 tasks:
  -
   name: go_test
