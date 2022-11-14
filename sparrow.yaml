@@ -9,7 +9,7 @@ tasks:
   code: |
     set -e
     if test $os = "debian"; then
-      export PATH=/usr/local/go/:$PATH
+      export PATH=/usr/local/go/bin:$PATH
     fi
     go version
     cd source
@@ -38,7 +38,6 @@ tasks:
         --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
       else
         sudo rm -rf /usr/local/go
-        sudo apt-get install -y wget
         curl -sfL https://go.dev/dl/go1.19.3.linux-amd64.tar.gz -o ~/go1.19.3.linux-amd64.tar.gz
         sudo tar -C /usr/local -xzf ~/go*.linux-amd64.tar.gz
       fi
