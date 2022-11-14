@@ -39,6 +39,6 @@ tasks:
       else
         sudo rm -rf /usr/local/go
         sudo apt-get install -y wget
-        wget https://go.dev/dl/go1.19.3.linux-amd64.tar.gz ~/
+        curl -sfL https://go.dev/dl/go1.19.3.linux-amd64.tar.gz -o ~/go1.19.3.linux-amd64.tar.gz
         sudo tar -C /usr/local -xzf ~/go*.linux-amd64.tar.gz
       fi
