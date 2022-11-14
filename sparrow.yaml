@@ -8,6 +8,9 @@ tasks:
   language: Bash
   code: |
     set -e
+    if test $os = "debian"; then
+      export PATH=/usr/local/go/:$PATH
+    fi
     go version
     cd source
     go test -v
@@ -30,6 +33,12 @@ tasks:
     name: install-go
     language: Bash
     code: |
-      sudo apk add go \
-      --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-
+      if test $os = "alpine"; then
+        sudo apk add go \
+        --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+      else
+        sudo rm -rf /usr/local/go
+        sudo apt-get install -y wget
+        wget https://go.dev/dl/go1.19.3.linux-amd64.tar.gz ~/
+        sudo tar -C /usr/local -xzf ~/go*.linux-amd64.tar.gz
+      fi
