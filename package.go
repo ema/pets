@@ -133,7 +133,7 @@ func (pp PetsPackage) IsInstalled() bool {
 		installed := NewCmd([]string{"apk", "info", "-qe", string(pp)})
 		_, _, err := RunCmd(installed)
 		if err != nil {
-			log.Printf("[ERROR] running %s: '%s'", installed, err)
+			log.Printf("[ERROR] running %s: '%s'\n", installed, err)
 			return false
 		}
 		return true
@@ -153,5 +153,5 @@ func InstallCommand() *exec.Cmd {
 	case APK:
 		return NewCmd([]string{"apk", "add"})
 	}
-  return nil
+	return nil
 }
