@@ -4,7 +4,6 @@ package main
 
 import (
 	"testing"
-	"fmt"
 )
 
 func TestReadModelinesFileNotFound(t *testing.T) {

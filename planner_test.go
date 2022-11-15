@@ -5,6 +5,7 @@ package main
 import (
 	"os"
 	"testing"
+	"fmt"
 )
 
 func coreutils_bin() string {
