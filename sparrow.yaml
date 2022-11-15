@@ -23,6 +23,9 @@ tasks:
   language: Bash
   code: |
     set -e
+    if test $os = "debian"; then
+      export PATH=/usr/local/go/bin:$PATH
+    fi
     go version
     cd source
     go build -v
