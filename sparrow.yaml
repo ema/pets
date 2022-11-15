@@ -11,6 +11,9 @@ tasks:
     if test $os = "debian"; then
       export PATH=/usr/local/go/bin:$PATH
     fi
+    if test $os = "alpine"; then
+      sudo apk add coreutils # TestPkgsToInstall implies that coreuitls are preinstalled 
+    fi
     go version
     cd source
     export os
