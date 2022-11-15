@@ -9,15 +9,17 @@ import (
 
 func coreutils_bin() string {
 
+	var coreutils_bin string
+
 	switch os.Getenv("os") {
 	case "alpine":
-		coreutils_bin := "/bin"
+		coreutils_bin = "/bin"
 	case "debian":
-		coreutils_bin := "/bin"
+		coreutils_bin = "/bin"
 	case "ubuntu":
-		coreutils_bin := "/bin"
+		coreutils_bin = "/bin"
 	default:
-		coreutils_bin := "/usr/bin"
+		coreutils_bin = "/usr/bin"
 	}
 	return coreutils_bin
 }

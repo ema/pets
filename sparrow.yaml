@@ -10,9 +10,11 @@ tasks:
     set -e
     if test $os = "debian"; then
       export PATH=/usr/local/go/bin:$PATH
+      export 
     fi
     go version
     cd source
+    export os
     go test -v
   default: true
   depends:
