@@ -10,7 +10,11 @@ They're actually a bit more than Pets. They're almost Family. For example: a
 laptop, workstation, and that personal tiny server in Sweden. They are all
 named after something dear.
 
-pets works on Linux systems, both Debian-like (APT) and RedHat-like (YUM).
+pets works on Linux systems. The following distro families are supported:
+
+- Debian-like (APT)
+- RedHat-like (YUM)
+- Alpine (APK)
 
 == Example
 
