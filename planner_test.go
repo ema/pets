@@ -3,8 +3,24 @@
 package main
 
 import (
+	"os"
 	"testing"
 )
+
+func coreutils_bin() string {
+
+	switch os.Getenv("os") {
+	case "alpine":
+		coreutils_bin := "/bin"
+	case "debian":
+		coreutils_bin := "/bin"
+	case "ubuntu":
+		coreutils_bin := "/bin"
+	default:
+		coreutils_bin := "/usr/bin"
+	}
+	return coreutils_bin
+}
 
 func TestPkgsToInstall(t *testing.T) {
 	// Test with empty slice of PetsFiles
@@ -73,7 +89,7 @@ func TestChmod(t *testing.T) {
 	pa = Chmod(pf)
 
 	assertEquals(t, pa.Cause.String(), "CHMOD")
-	assertEquals(t, pa.Command.String(), "/usr/bin/chmod 0644 /dev/null")
+	assertEquals(t, pa.Command.String(), fmt.Sprintf("%s/chmod 0644 /dev/null", coreutils_bin()))
 
 	pf.Dest = "/etc/passwd"
 	pa = Chmod(pf)
@@ -109,5 +125,5 @@ func TestChown(t *testing.T) {
 	}
 
 	assertEquals(t, pa.Cause.String(), "OWNER")
-	assertEquals(t, pa.Command.String(), "/usr/bin/chown nobody:root /etc/passwd")
+	assertEquals(t, pa.Command.String(), fmt.Sprintf("%s/chown nobody:root /etc/passwd", coreutils_bin()))
 }
