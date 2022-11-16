@@ -130,13 +130,16 @@ func (pp PetsPackage) IsInstalled() bool {
 	}
 
 	if family == APK {
-		installed := NewCmd([]string{"apk", "info", "-qe", string(pp)})
-		_, _, err := RunCmd(installed)
+		installed := NewCmd([]string{"apk", "info", "-e", string(pp)})
+		stdout, _, err := RunCmd(installed)
 		if err != nil {
 			log.Printf("[ERROR] running %s: '%s'\n", installed, err)
 			return false
 		}
-		return true
+
+		// apk info -e $pkg prints the package name to stdout if the package is
+		// installed, nothing otherwise
+		return strings.TrimSpace(stdout) == string(pp)
 	}
 
 	return false
