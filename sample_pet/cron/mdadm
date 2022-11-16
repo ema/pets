@@ -1,0 +1,5 @@
+# pets: destfile=/etc/cron.d/mdadm, owner=root, group=root, mode=640
+# pets: package=cron
+# pets: package=mdadm
+
+57 0 * * 0 root if [ -x /usr/share/mdadm/checkarray ] && [ $(date +\%d) -le 7 ]; then /usr/share/mdadm/checkarray --cron --all --idle --quiet; fi
