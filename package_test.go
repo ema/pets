@@ -17,12 +17,12 @@ func TestPkgIsNotValid(t *testing.T) {
 }
 
 func TestIsInstalled(t *testing.T) {
-	pkg := PetsPackage("coreutils")
+	pkg := PetsPackage("binutils")
 	assertEquals(t, pkg.IsInstalled(), true)
 }
 
 func TestIsNotInstalled(t *testing.T) {
-	pkg := PetsPackage("astroid")
+	pkg := PetsPackage("abiword")
 	assertEquals(t, pkg.IsInstalled(), false)
 
 	pkg = PetsPackage("this is getting ridiculous")

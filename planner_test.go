@@ -13,7 +13,7 @@ func TestPkgsToInstall(t *testing.T) {
 	assertEquals(t, isTodo, false)
 
 	// Test with one package already installed
-	pf, err := NewPetsFile("/dev/null", "coreutils", "/etc/passwd", "root", "root", "0640", "", "")
+	pf, err := NewPetsFile("/dev/null", "binutils", "/etc/passwd", "root", "root", "0640", "", "")
 	assertNoError(t, err)
 
 	petsFiles = append(petsFiles, pf)
@@ -21,7 +21,7 @@ func TestPkgsToInstall(t *testing.T) {
 	assertEquals(t, isTodo, false)
 
 	// Add another package to the mix, this time it's not installed
-	petsFiles[0].Pkgs = append(petsFiles[0].Pkgs, PetsPackage("freedoom"))
+	petsFiles[0].Pkgs = append(petsFiles[0].Pkgs, PetsPackage("abiword"))
 	isTodo, _ = PkgsToInstall(petsFiles)
 	assertEquals(t, isTodo, true)
 }
