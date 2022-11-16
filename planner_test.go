@@ -73,7 +73,7 @@ func TestChmod(t *testing.T) {
 	pa = Chmod(pf)
 
 	assertEquals(t, pa.Cause.String(), "CHMOD")
-	assertEquals(t, pa.Command.String(), "/usr/bin/chmod 0644 /dev/null")
+	assertEquals(t, pa.Command.String(), "/bin/chmod 0644 /dev/null")
 
 	pf.Dest = "/etc/passwd"
 	pa = Chmod(pf)
@@ -109,5 +109,5 @@ func TestChown(t *testing.T) {
 	}
 
 	assertEquals(t, pa.Cause.String(), "OWNER")
-	assertEquals(t, pa.Command.String(), "/usr/bin/chown nobody:root /etc/passwd")
+	assertEquals(t, pa.Command.String(), "/bin/chown nobody:root /etc/passwd")
 }

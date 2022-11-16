@@ -105,7 +105,7 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 	} else {
 		return &PetsAction{
 			Cause:   cause,
-			Command: NewCmd([]string{"cp", trigger.Source, trigger.Dest}),
+			Command: NewCmd([]string{"/bin/cp", trigger.Source, trigger.Dest}),
 			Trigger: trigger,
 		}
 	}
@@ -148,7 +148,7 @@ func Chown(trigger *PetsFile) *PetsAction {
 	// The action to (possibly) perform is a chown of the file.
 	action := &PetsAction{
 		Cause:   OWNER,
-		Command: NewCmd([]string{"chown", arg, trigger.Dest}),
+		Command: NewCmd([]string{"/bin/chown", arg, trigger.Dest}),
 		Trigger: trigger,
 	}
 
@@ -186,7 +186,7 @@ func Chmod(trigger *PetsFile) *PetsAction {
 	// The action to (possibly) perform is a chmod of the file.
 	action := &PetsAction{
 		Cause:   MODE,
-		Command: NewCmd([]string{"chmod", trigger.Mode, trigger.Dest}),
+		Command: NewCmd([]string{"/bin/chmod", trigger.Mode, trigger.Dest}),
 		Trigger: trigger,
 	}
 
