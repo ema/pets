@@ -1,0 +1,4 @@
+# pets: destfile=/etc/ssmtp/revaliases, owner=root, group=root, mode=0440
+# pets: package=ssmtp
+root:username@gmail.com:smtp.gmail.com:465
+localuser:username@gmail.com:smtp.gmail.com:465
