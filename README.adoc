@@ -164,3 +164,12 @@ The example above and the one below are equivalent
 # pets: package=ssh
 # pets: pre=/usr/sbin/sshd -t -f
 ----
+
+== Reception
+Pets was featured https://news.ycombinator.com/item?id=33414338[on Hacker News]
+and https://lobste.rs/s/jc2oru/configuration_management_system_for[on
+Lobsters].
+
+The author of Chef started
+https://twitter.com/adamhjk/status/1587169750249271296[an interesting Twitter
+thread] about Pets too.
