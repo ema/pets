@@ -1,6 +1,7 @@
 image:
   - melezhik/sparrow:alpine
   - melezhik/sparrow:debian
+  - melezhik/sparrow:ubuntu
   
 tasks:
  -
@@ -8,7 +9,7 @@ tasks:
   language: Bash
   code: |
     set -e
-    if test $os = "debian"; then
+    if test "$os" = "ubuntu" || test "$os" = "debian"; then
       export PATH=/usr/local/go/bin:$PATH
     fi
     go version
@@ -23,7 +24,7 @@ tasks:
   language: Bash
   code: |
     set -e
-    if test $os = "debian"; then
+    if test "$os" = "ubuntu" || test "$os" = "debian"; then
       export PATH=/usr/local/go/bin:$PATH
     fi
     go version
