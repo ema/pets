@@ -34,7 +34,13 @@ func TestParseModelineErr(t *testing.T) {
 	assertError(t, err)
 }
 
-func TestParseModelineOK(t *testing.T) {
+func TestParseModelineBadKeyword(t *testing.T) {
+	var pf PetsFile
+	err := ParseModeline("# pets: something=funny", &pf)
+	assertError(t, err)
+}
+
+func TestParseModelineOKDestfile(t *testing.T) {
 	var pf PetsFile
 	err := ParseModeline("# pets: destfile=/etc/ssh/sshd_config, owner=root, group=root, mode=0644", &pf)
 	assertNoError(t, err)
@@ -43,4 +49,13 @@ func TestParseModelineOK(t *testing.T) {
 	assertEquals(t, pf.User.Uid, "0")
 	assertEquals(t, pf.Group.Gid, "0")
 	assertEquals(t, pf.Mode, "0644")
+}
+
+func TestParseModelineOKPackage(t *testing.T) {
+	var pf PetsFile
+	err := ParseModeline("# pets: package=vim", &pf)
+	assertNoError(t, err)
+
+	assertEquals(t, pf.Dest, "")
+	assertEquals(t, string(pf.Pkgs[0]), "vim")
 }
