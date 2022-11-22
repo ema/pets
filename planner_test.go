@@ -109,3 +109,33 @@ func TestChown(t *testing.T) {
 	assertEquals(t, pa.Cause.String(), "OWNER")
 	assertEquals(t, pa.Command.String(), "/bin/chown nobody:root /etc/passwd")
 }
+
+func TestLn(t *testing.T) {
+	pf := NewPetsFile()
+	pf.Source = "sample_pet/vimrc"
+
+	// Link attribute and Dest not set
+	pa := LinkToCreate(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+
+	// Destination already exists
+	pf.AddLink("/etc/passwd")
+
+	pa = LinkToCreate(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+
+	// Happy path, destination does not exist yet
+	pf.AddLink("/tmp/vimrc")
+
+	pa = LinkToCreate(pf)
+	if pa == nil {
+		t.Errorf("Expecting some action, got nil instead")
+	}
+
+	assertEquals(t, pa.Cause.String(), "LINK_CREATE")
+	assertEquals(t, pa.Command.String(), "/bin/ln -s sample_pet/vimrc /tmp/vimrc")
+}
