@@ -7,7 +7,7 @@ import (
 )
 
 func TestBadUser(t *testing.T) {
-	f, err := NewPetsFile("", "", "", "never-did-this-user-exist", "", "", "", "")
+	f, err := NewTestFile("", "", "", "never-did-this-user-exist", "", "", "", "")
 
 	assertError(t, err)
 
@@ -17,7 +17,7 @@ func TestBadUser(t *testing.T) {
 }
 
 func TestBadGroup(t *testing.T) {
-	f, err := NewPetsFile("", "", "", "root", "never-did-this-user-exist", "", "", "")
+	f, err := NewTestFile("", "", "", "root", "never-did-this-user-exist", "", "", "")
 
 	assertError(t, err)
 
@@ -27,13 +27,13 @@ func TestBadGroup(t *testing.T) {
 }
 
 func TestShortModes(t *testing.T) {
-	f, err := NewPetsFile("", "", "", "root", "root", "600", "", "")
+	f, err := NewTestFile("", "", "", "root", "root", "600", "", "")
 
 	assertNoError(t, err)
 
 	assertEquals(t, f.Mode, "600")
 
-	f, err = NewPetsFile("", "", "", "root", "root", "755", "", "")
+	f, err = NewTestFile("", "", "", "root", "root", "755", "", "")
 
 	assertNoError(t, err)
 
@@ -41,7 +41,7 @@ func TestShortModes(t *testing.T) {
 }
 
 func TestOK(t *testing.T) {
-	f, err := NewPetsFile("syntax on\n", "vim", "/tmp/vimrc", "root", "root", "0600", "cat -n /etc/motd /etc/passwd", "df")
+	f, err := NewTestFile("syntax on\n", "vim", "/tmp/vimrc", "root", "root", "0600", "cat -n /etc/motd /etc/passwd", "df")
 	assertNoError(t, err)
 
 	assertEquals(t, f.Pkgs[0], PetsPackage("vim"))
@@ -51,7 +51,7 @@ func TestOK(t *testing.T) {
 
 func TestFileIsValidTrue(t *testing.T) {
 	// Everything correct
-	f, err := NewPetsFile("/dev/null", "gvim", "/dev/null", "root", "root", "0600", "/bin/true", "")
+	f, err := NewTestFile("/dev/null", "gvim", "/dev/null", "root", "root", "0600", "/bin/true", "")
 	assertNoError(t, err)
 
 	assertEquals(t, f.IsValid(false), true)
@@ -59,7 +59,7 @@ func TestFileIsValidTrue(t *testing.T) {
 
 func TestFileIsValidBadPackage(t *testing.T) {
 	// Bad package name
-	f, err := NewPetsFile("/dev/null", "not-an-actual-package", "/dev/null", "root", "root", "0600", "/bin/true", "")
+	f, err := NewTestFile("/dev/null", "not-an-actual-package", "/dev/null", "root", "root", "0600", "/bin/true", "")
 	assertNoError(t, err)
 
 	assertEquals(t, f.IsValid(false), false)
@@ -67,13 +67,13 @@ func TestFileIsValidBadPackage(t *testing.T) {
 
 func TestFileIsValidPrePathError(t *testing.T) {
 	// Path error in validation command
-	f, err := NewPetsFile("README.adoc", "gvim", "/etc/motd", "root", "root", "0600", "/bin/whatever-but-not-a-valid-path", "")
+	f, err := NewTestFile("README.adoc", "gvim", "/etc/motd", "root", "root", "0600", "/bin/whatever-but-not-a-valid-path", "")
 	assertNoError(t, err)
 	assertEquals(t, f.IsValid(true), true)
 }
 
 func TestFileIsValidPathError(t *testing.T) {
-	f, err := NewPetsFile("README.adoc", "gvim", "/etc/motd", "root", "root", "0600", "/bin/whatever-but-not-a-valid-path", "")
+	f, err := NewTestFile("README.adoc", "gvim", "/etc/motd", "root", "root", "0600", "/bin/whatever-but-not-a-valid-path", "")
 	assertNoError(t, err)
 
 	// Passing pathErrorOK=true to IsValid

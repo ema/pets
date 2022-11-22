@@ -13,7 +13,7 @@ func TestPkgsToInstall(t *testing.T) {
 	assertEquals(t, isTodo, false)
 
 	// Test with one package already installed
-	pf, err := NewPetsFile("/dev/null", "binutils", "/etc/passwd", "root", "root", "0640", "", "")
+	pf, err := NewTestFile("/dev/null", "binutils", "/etc/passwd", "root", "root", "0640", "", "")
 	assertNoError(t, err)
 
 	petsFiles = append(petsFiles, pf)
@@ -27,7 +27,7 @@ func TestPkgsToInstall(t *testing.T) {
 }
 
 func TestFileToCopy(t *testing.T) {
-	pf, err := NewPetsFile("sample_pet/ssh/sshd_config", "ssh", "sample_pet/ssh/sshd_config", "root", "root", "0640", "", "")
+	pf, err := NewTestFile("sample_pet/ssh/sshd_config", "ssh", "sample_pet/ssh/sshd_config", "root", "root", "0640", "", "")
 	assertNoError(t, err)
 
 	pa := FileToCopy(pf)
@@ -35,7 +35,7 @@ func TestFileToCopy(t *testing.T) {
 		t.Errorf("Expecting nil, got %v instead", pa)
 	}
 
-	pf, err = NewPetsFile("sample_pet/ssh/sshd_config", "ssh", "/tmp/polpette", "root", "root", "0640", "", "")
+	pf, err = NewTestFile("sample_pet/ssh/sshd_config", "ssh", "/tmp/polpette", "root", "root", "0640", "", "")
 	assertNoError(t, err)
 
 	pa = FileToCopy(pf)
@@ -45,7 +45,7 @@ func TestFileToCopy(t *testing.T) {
 
 	assertEquals(t, pa.Cause.String(), "FILE_CREATE")
 
-	pf, err = NewPetsFile("sample_pet/ssh/sshd_config", "ssh", "sample_pet/ssh/user_ssh_config", "root", "root", "0640", "", "")
+	pf, err = NewTestFile("sample_pet/ssh/sshd_config", "ssh", "sample_pet/ssh/user_ssh_config", "root", "root", "0640", "", "")
 	assertNoError(t, err)
 
 	pa = FileToCopy(pf)
