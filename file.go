@@ -22,6 +22,17 @@ type PetsFile struct {
 	Mode string
 	Pre  *exec.Cmd
 	Post *exec.Cmd
+	// Is this a symbolic link or an actual file to be copied?
+	Link bool
+}
+
+func NewPetsFile() *PetsFile {
+	return &PetsFile{
+		Source: "",
+		Dest:   "",
+		Mode:   "",
+		Link:   false,
+	}
 }
 
 // NeedsCopy returns PetsCause UPDATE if Source needs to be copied over Dest,
@@ -115,13 +126,5 @@ func (pf *PetsFile) AddPost(post string) {
 	postArgs := strings.Fields(post)
 	if len(postArgs) > 0 {
 		pf.Post = NewCmd(postArgs)
-	}
-}
-
-func NewPetsFile() *PetsFile {
-	return &PetsFile{
-		Source: "",
-		Dest:   "",
-		Mode:   "",
 	}
 }
