@@ -16,9 +16,11 @@ pets works on Linux systems. The following distro families are supported:
 - RedHat-like (YUM)
 - Alpine (APK)
 
-== Example
+== Summary
 
-One example is worth a thousand words! Give user "ema" sudo rights with pets.
+Pets is the first configuration management system driven by comments embedded
+in the config files themselves, rather than by a domain-specific language
+(DSL). For example, say you want to ensure that user "ema" has sudo rights.
 Create a file with the following contents under `$HOME/pets/`, run `pets` as
 root, done. The file can be called whatever you want. Note that pets will
 install the `sudo` package for you if missing.
@@ -103,7 +105,80 @@ image::design.png[]
 
 == Configuration directives
 
-Here's an example of custom sshd_config:
+- destfile -- where to install this file.
+- symlink -- create a symbolic link to this file, instead of copying it like *destfile* would.
+- owner -- the file owner, passed to chown(1)
+- group -- the group this file belongs to, passed to chgrp(1)
+- mode -- octal mode for chmod(1)
+- package -- which package to install before creating the file. This
+  directive can be specificed more than once to install multiple packages.
+- pre -- validation command. This must succeed for the file to be
+  created / updated.
+- post -- apply command. Usually something like reloading a service.
+
+Configuration directives are passed as key/value arguments, either on multiple
+lines or separated by commas.
+
+----
+# pets: package=ssh, pre=/usr/sbin/sshd -t -f
+----
+
+The example above and the one below are equivalent
+
+----
+# pets: package=ssh
+# pets: pre=/usr/sbin/sshd -t -f
+----
+
+== Examples
+
+=== Firewall
+
+Say you want to configure the local firewall to drop all incoming traffic
+except for ssh? Here's an example that does the following:
+
+- Installs `ferm` if missing
+- Validates the configuration with `/usr/sbin/ferm -n`
+- If the configuration is valid, copies it under `/etc/ferm/ferm.conf`
+- Reloads the firewall rules with `systemctl reload`
+
+----
+# pets: destfile=/etc/ferm/ferm.conf, owner=root, group=root, mode=644
+# pets: package=ferm
+# pets: pre=/usr/sbin/ferm -n
+# pets: post=/bin/systemctl reload ferm.service
+
+domain (ip ip6) {
+    table filter {
+        chain INPUT {
+            policy DROP;
+
+            # connection tracking
+            mod state state INVALID DROP;
+            mod state state (ESTABLISHED RELATED) ACCEPT;
+
+            # allow local packets
+            interface lo ACCEPT;
+
+            # respond to ping
+            proto icmp ACCEPT;
+
+            # allow SSH connections
+            proto tcp dport ssh ACCEPT;
+        }
+
+        chain OUTPUT {
+            policy ACCEPT;
+        }
+
+        chain FORWARD {
+            policy DROP;
+        }
+    }
+}
+----
+
+=== SSH Server
 
 ----
 # pets: destfile=/etc/ssh/sshd_config, owner=root, group=root, mode=0644
@@ -137,33 +212,6 @@ AcceptEnv LANG LC_*
 Subsystem sftp /usr/lib/openssh/sftp-server
 
 UsePAM yes
-----
-
-That's it! All supported configuration directives are showcased in the example above:
-
-- destfile (mandatory) -- where to install this file. This is the only mandatory directive.
-- symlink -- create a symbolic link to this file, instead of copying it like 'destfile' would.
-- owner -- the file owner, passed to chown(1)
-- group -- the group this file belongs to, passed to chgrp(1)
-- mode -- octal mode for chmod(1)
-- package -- which package to install before creating the file. This
-  directive can be specificed more than once to install multiple packages.
-- pre -- validation command. This must succeed for the file to be
-  created / updated.
-- post -- apply command. Usually something like reloading a service.
-
-Configuration directives are passed as key/value arguments, either on multiple
-lines or separated by commas.
-
-----
-# pets: package=ssh, pre=/usr/sbin/sshd -t -f
-----
-
-The example above and the one below are equivalent
-
-----
-# pets: package=ssh
-# pets: pre=/usr/sbin/sshd -t -f
 ----
 
 == Reception
