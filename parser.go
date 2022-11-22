@@ -155,9 +155,8 @@ func ParseFiles(directory string) ([]*PetsFile, error) {
 
 		// Instantiate a PetsFile representation. The only thing we know so far
 		// is the source path. Every long journey begins with a single step!
-		pf := &PetsFile{
-			Source: path,
-		}
+		pf := NewPetsFile()
+		pf.Source = path
 
 		for _, line := range modelines {
 			err := ParseModeline(line, pf)

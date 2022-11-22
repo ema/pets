@@ -117,3 +117,11 @@ func (pf *PetsFile) AddPost(post string) {
 		pf.Post = NewCmd(postArgs)
 	}
 }
+
+func NewPetsFile() *PetsFile {
+	return &PetsFile{
+		Source: "",
+		Dest:   "",
+		Mode:   "",
+	}
+}
