@@ -117,35 +117,3 @@ func (pf *PetsFile) AddPost(post string) {
 		pf.Post = NewCmd(postArgs)
 	}
 }
-
-func NewPetsFile(src, pkg, dest, userName, groupName, mode, pre, post string) (*PetsFile, error) {
-	var err error
-
-	p := &PetsFile{
-		Source: src,
-		Pkgs:   []PetsPackage{PetsPackage(pkg)},
-	}
-
-	p.AddDest(dest)
-
-	err = p.AddUser(userName)
-	if err != nil {
-		return nil, err
-	}
-
-	err = p.AddGroup(groupName)
-	if err != nil {
-		return nil, err
-	}
-
-	err = p.AddMode(mode)
-	if err != nil {
-		return nil, err
-	}
-
-	p.AddPre(pre)
-
-	p.AddPost(post)
-
-	return p, nil
-}

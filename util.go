@@ -91,3 +91,35 @@ func assertError(t *testing.T, err error) {
 		t.Errorf("Expecting an error, got nil instead")
 	}
 }
+
+func NewTestFile(src, pkg, dest, userName, groupName, mode, pre, post string) (*PetsFile, error) {
+	var err error
+
+	p := &PetsFile{
+		Source: src,
+		Pkgs:   []PetsPackage{PetsPackage(pkg)},
+	}
+
+	p.AddDest(dest)
+
+	err = p.AddUser(userName)
+	if err != nil {
+		return nil, err
+	}
+
+	err = p.AddGroup(groupName)
+	if err != nil {
+		return nil, err
+	}
+
+	err = p.AddMode(mode)
+	if err != nil {
+		return nil, err
+	}
+
+	p.AddPre(pre)
+
+	p.AddPost(post)
+
+	return p, nil
+}
