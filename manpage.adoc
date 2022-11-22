@@ -41,8 +41,8 @@ set background=light
 Configuration directives are passed as key/value arguments, either on multiple
 lines or separated by commas. The full list of supported directives is:
 
-- destfile (mandatory) -- where to install this file. This is the only mandatory directive.
-- symlink -- create a symbolic link to this file, instead of copying it like 'destfile' would.
+- destfile -- where to install this file. One of either *destfile* or *symlink* must be specified.
+- symlink -- create a symbolic link to this file, instead of copying it like *destfile* would.
 - owner -- the file owner, passed to chown(1)
 - group -- the group this file belongs to, passed to chgrp(1)
 - mode -- octal mode for chmod(1)

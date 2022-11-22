@@ -180,9 +180,9 @@ func ParseFiles(directory string) ([]*PetsFile, error) {
 		}
 
 		if pf.Dest == "" {
-			// Destile is a mandatory argument. If we did not find any, consider it an
-			// error.
-			log.Println(fmt.Errorf("[ERROR] No 'destfile' directive found in '%s'", path))
+			// 'destfile' or 'symlink' are mandatory arguments. If we did not
+			// find any, consider it an error.
+			log.Println(fmt.Errorf("[ERROR] Neither 'destfile' nor 'symlink' directives found in '%s'", path))
 			return nil
 		}
 
