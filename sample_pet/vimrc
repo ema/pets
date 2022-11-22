@@ -1,0 +1,7 @@
+# pets: package=vim
+# pets: symlink=/root/.vimrc
+
+syntax on
+set expandtab
+set shiftwidth=4
+set tabstop=4

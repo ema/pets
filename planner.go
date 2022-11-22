@@ -19,6 +19,7 @@ const (
 	PKG           // required package is missing
 	CREATE        // configuration file is missing and needs to be created
 	UPDATE        // configuration file differs and needs to be updated
+	LINK          // symbolic link needs to be created
 	OWNER         // needs chown()
 	MODE          // needs chmod()
 	POST          // post-update command
@@ -29,6 +30,7 @@ func (pc PetsCause) String() string {
 		PKG:    "PACKAGE_INSTALL",
 		CREATE: "FILE_CREATE",
 		UPDATE: "FILE_UPDATE",
+		LINK:   "LINK_CREATE",
 		OWNER:  "OWNER",
 		MODE:   "CHMOD",
 		POST:   "POST_UPDATE",
@@ -98,6 +100,10 @@ func PkgsToInstall(triggers []*PetsFile) (bool, *exec.Cmd) {
 // FileToCopy figures out if the given trigger represents a file that needs to
 // be updated, and returns the corresponding PetsAction.
 func FileToCopy(trigger *PetsFile) *PetsAction {
+	if trigger.Link {
+		return nil
+	}
+
 	cause := trigger.NeedsCopy()
 
 	if cause == NONE {
@@ -106,6 +112,26 @@ func FileToCopy(trigger *PetsFile) *PetsAction {
 		return &PetsAction{
 			Cause:   cause,
 			Command: NewCmd([]string{"/bin/cp", trigger.Source, trigger.Dest}),
+			Trigger: trigger,
+		}
+	}
+}
+
+// LinkToCreate figures out if the given trigger represents a symbolic link
+// that needs to be created, and returns the corresponding PetsAction.
+func LinkToCreate(trigger *PetsFile) *PetsAction {
+	if !trigger.Link {
+		return nil
+	}
+
+	cause := trigger.NeedsLink()
+
+	if cause == NONE {
+		return nil
+	} else {
+		return &PetsAction{
+			Cause:   cause,
+			Command: NewCmd([]string{"/bin/ln", "-s", trigger.Source, trigger.Dest}),
 			Trigger: trigger,
 		}
 	}
@@ -238,6 +264,12 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 		// Then, figure out which files need to be modified/created.
 		if fileAction := FileToCopy(trigger); fileAction != nil {
 			actions = append(actions, fileAction)
+			actionFired = true
+		}
+
+		// Any symlink to create
+		if linkAction := LinkToCreate(trigger); linkAction != nil {
+			actions = append(actions, linkAction)
 			actionFired = true
 		}
 

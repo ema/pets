@@ -87,6 +87,8 @@ func ParseModeline(line string, pf *PetsFile) error {
 		switch keyword {
 		case "destfile":
 			pf.AddDest(argument)
+		case "symlink":
+			pf.AddLink(argument)
 		case "owner":
 			err = pf.AddUser(argument)
 			if err != nil {
@@ -156,7 +158,16 @@ func ParseFiles(directory string) ([]*PetsFile, error) {
 		// Instantiate a PetsFile representation. The only thing we know so far
 		// is the source path. Every long journey begins with a single step!
 		pf := NewPetsFile()
-		pf.Source = path
+
+		// Get absolute path to the source. Technically we would be fine with a
+		// relative path too, but it's good to remove abiguity. Plus absolute
+		// paths make things easier in case we have to create a symlink.
+		abs, err := filepath.Abs(path)
+		if err != nil {
+			return err
+		}
+
+		pf.Source = abs
 
 		for _, line := range modelines {
 			err := ParseModeline(line, pf)
