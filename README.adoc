@@ -142,6 +142,7 @@ UsePAM yes
 That's it! All supported configuration directives are showcased in the example above:
 
 - destfile (mandatory) -- where to install this file. This is the only mandatory directive.
+- symlink -- create a symbolic link to this file, instead of copying it like 'destfile' would.
 - owner -- the file owner, passed to chown(1)
 - group -- the group this file belongs to, passed to chgrp(1)
 - mode -- octal mode for chmod(1)

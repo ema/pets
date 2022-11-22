@@ -49,6 +49,16 @@ func TestParseModelineOKDestfile(t *testing.T) {
 	assertEquals(t, pf.User.Uid, "0")
 	assertEquals(t, pf.Group.Gid, "0")
 	assertEquals(t, pf.Mode, "0644")
+	assertEquals(t, pf.Link, false)
+}
+
+func TestParseModelineOKSymlink(t *testing.T) {
+	var pf PetsFile
+	err := ParseModeline("# pets: symlink=/etc/ssh/sshd_config", &pf)
+	assertNoError(t, err)
+
+	assertEquals(t, pf.Dest, "/etc/ssh/sshd_config")
+	assertEquals(t, pf.Link, true)
 }
 
 func TestParseModelineOKPackage(t *testing.T) {
