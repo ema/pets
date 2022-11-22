@@ -94,3 +94,37 @@ func TestNeedsCopySourceNotThere(t *testing.T) {
 	f.Source = "something-very-funny.lol"
 	assertEquals(t, int(f.NeedsCopy()), int(NONE))
 }
+
+func TestNeedsLinkNoDest(t *testing.T) {
+	f := NewPetsFile()
+	f.Source = "sample_pet/vimrc"
+	assertEquals(t, int(f.NeedsLink()), int(NONE))
+}
+
+func TestNeedsLinkHappyPathLINK(t *testing.T) {
+	f := NewPetsFile()
+	f.Source = "sample_pet/vimrc"
+	f.AddLink("/tmp/this_does_not_exist_yet.vimrc")
+	assertEquals(t, int(f.NeedsLink()), int(LINK))
+}
+
+func TestNeedsLinkHappyPathNONE(t *testing.T) {
+	f := NewPetsFile()
+	f.Source = "sample_pet/README"
+	f.AddLink("sample_pet/README.txt")
+	assertEquals(t, int(f.NeedsLink()), int(NONE))
+}
+
+func TestNeedsLinkDestExists(t *testing.T) {
+	f := NewPetsFile()
+	f.Source = "sample_pet/vimrc"
+	f.AddLink("/etc/passwd")
+	assertEquals(t, int(f.NeedsLink()), int(NONE))
+}
+
+func TestNeedsLinkDestIsSymlink(t *testing.T) {
+	f := NewPetsFile()
+	f.Source = "sample_pet/vimrc"
+	f.AddLink("/etc/mtab")
+	assertEquals(t, int(f.NeedsLink()), int(NONE))
+}
