@@ -58,10 +58,9 @@ func TestFileToCopy(t *testing.T) {
 
 func TestChmod(t *testing.T) {
 	// Expect Chmod() to return nil if the 'mode' directive is missing.
-	pf := &PetsFile{
-		Source: "/dev/null",
-		Dest:   "/dev/null",
-	}
+	pf := NewPetsFile()
+	pf.Source = "/dev/null"
+	pf.Dest = "/dev/null"
 
 	pa := Chmod(pf)
 	if pa != nil {
@@ -83,10 +82,9 @@ func TestChmod(t *testing.T) {
 }
 
 func TestChown(t *testing.T) {
-	pf := &PetsFile{
-		Source: "/dev/null",
-		Dest:   "/etc/passwd",
-	}
+	pf := NewPetsFile()
+	pf.Source = "/dev/null"
+	pf.Dest = "/etc/passwd"
 
 	// If no 'user' or 'group' directives are specified
 	pa := Chown(pf)

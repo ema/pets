@@ -95,10 +95,9 @@ func assertError(t *testing.T, err error) {
 func NewTestFile(src, pkg, dest, userName, groupName, mode, pre, post string) (*PetsFile, error) {
 	var err error
 
-	p := &PetsFile{
-		Source: src,
-		Pkgs:   []PetsPackage{PetsPackage(pkg)},
-	}
+	p := NewPetsFile()
+	p.Source = src
+	p.Pkgs = []PetsPackage{PetsPackage(pkg)}
 
 	p.AddDest(dest)
 
