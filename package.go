@@ -19,8 +19,10 @@ const (
 	APT = iota
 	YUM
 	APK
+	PACMAN
 )
 
+// WhichPackageManager is available on the system
 func WhichPackageManager() PackageManager {
 	var err error
 
@@ -42,6 +44,12 @@ func WhichPackageManager() PackageManager {
 		return APK
 	}
 
+	pacman := NewCmd([]string{"pacman", "--version"})
+	_, _, err = RunCmd(pacman)
+	if err == nil {
+		return PACMAN
+	}
+
 	panic("Unknown Package Manager")
 }
 
@@ -55,6 +63,8 @@ func (pp PetsPackage) getPkgInfo() string {
 		pkgInfo = NewCmd([]string{"yum", "info", string(pp)})
 	case APK:
 		pkgInfo = NewCmd([]string{"apk", "search", "-e", string(pp)})
+	case PACMAN:
+		pkgInfo = NewCmd([]string{"pacman", "-Si", string(pp)})
 	}
 
 	stdout, _, err := RunCmd(pkgInfo)
@@ -92,6 +102,12 @@ func (pp PetsPackage) IsValid() bool {
 
 	if family == APK && strings.HasPrefix(stdout, string(pp)) {
 		// Return true if the output of apk search -e begins with pp
+		log.Printf("[DEBUG] %s is a valid package name\n", pp)
+		return true
+	}
+
+	if family == PACMAN && !strings.HasPrefix(stdout, "error:") {
+		// Return true if the output of pacman -Si doesnt begins with error
 		log.Printf("[DEBUG] %s is a valid package name\n", pp)
 		return true
 	}
@@ -142,6 +158,19 @@ func (pp PetsPackage) IsInstalled() bool {
 		return strings.TrimSpace(stdout) == string(pp)
 	}
 
+	if family == PACMAN {
+		installed := NewCmd([]string{"pacman", "-Qs", string(pp)})
+		// pacman will return 0 if the package is installed 1 if not
+		if _, _, err := RunCmd(installed); err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				return exitError.ExitCode() == 0
+			}
+			log.Printf("[ERROR] running %s: '%s'", installed, err)
+			return false
+		}
+		return true
+	}
+
 	return false
 }
 
@@ -155,6 +184,8 @@ func InstallCommand() *exec.Cmd {
 		return NewCmd([]string{"yum", "-y", "install"})
 	case APK:
 		return NewCmd([]string{"apk", "add"})
+	case PACMAN:
+		return NewCmd([]string{"pacman", "-S", "--noconfirm"})
 	}
 	return nil
 }
