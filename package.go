@@ -19,6 +19,7 @@ const (
 	APT = iota
 	YUM
 	APK
+	YAY
 	PACMAN
 )
 
@@ -44,9 +45,14 @@ func WhichPackageManager() PackageManager {
 		return APK
 	}
 
+	// Yay has to be first because yay wraps pacman
+	yay := NewCmd([]string{"yay", "--version"})
+	if _, _, err = RunCmd(yay); err == nil {
+		return YAY
+	}
+
 	pacman := NewCmd([]string{"pacman", "--version"})
-	_, _, err = RunCmd(pacman)
-	if err == nil {
+	if _, _, err = RunCmd(pacman); err == nil {
 		return PACMAN
 	}
 
@@ -65,6 +71,8 @@ func (pp PetsPackage) getPkgInfo() string {
 		pkgInfo = NewCmd([]string{"apk", "search", "-e", string(pp)})
 	case PACMAN:
 		pkgInfo = NewCmd([]string{"pacman", "-Si", string(pp)})
+	case YAY:
+		pkgInfo = NewCmd([]string{"yay", "-Si", string(pp)})
 	}
 
 	stdout, _, err := RunCmd(pkgInfo)
@@ -106,7 +114,7 @@ func (pp PetsPackage) IsValid() bool {
 		return true
 	}
 
-	if family == PACMAN && !strings.HasPrefix(stdout, "error:") {
+	if (family == PACMAN || family == YAY) && !strings.HasPrefix(stdout, "error:") {
 		// Return true if the output of pacman -Si doesnt begins with error
 		log.Printf("[DEBUG] %s is a valid package name\n", pp)
 		return true
@@ -158,9 +166,12 @@ func (pp PetsPackage) IsInstalled() bool {
 		return strings.TrimSpace(stdout) == string(pp)
 	}
 
-	if family == PACMAN {
+	if family == PACMAN || family == YAY {
 		installed := NewCmd([]string{"pacman", "-Qs", string(pp)})
-		// pacman will return 0 if the package is installed 1 if not
+		if family == YAY {
+			installed = NewCmd([]string{"yay", "-Qs", string(pp)})
+		}
+		// pacman and yay will return 0 if the package is installed 1 if not
 		if _, _, err := RunCmd(installed); err != nil {
 			if exitError, ok := err.(*exec.ExitError); ok {
 				return exitError.ExitCode() == 0
@@ -170,7 +181,6 @@ func (pp PetsPackage) IsInstalled() bool {
 		}
 		return true
 	}
-
 	return false
 }
 
@@ -186,6 +196,8 @@ func InstallCommand() *exec.Cmd {
 		return NewCmd([]string{"apk", "add"})
 	case PACMAN:
 		return NewCmd([]string{"pacman", "-S", "--noconfirm"})
+	case YAY:
+		return NewCmd([]string{"yay", "-S", "--noconfirm"})
 	}
 	return nil
 }
