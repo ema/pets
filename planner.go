@@ -20,6 +20,7 @@ const (
 	CREATE        // configuration file is missing and needs to be created
 	UPDATE        // configuration file differs and needs to be updated
 	LINK          // symbolic link needs to be created
+	DIR           // directory needs to be created
 	OWNER         // needs chown()
 	MODE          // needs chmod()
 	POST          // post-update command
@@ -31,6 +32,7 @@ func (pc PetsCause) String() string {
 		CREATE: "FILE_CREATE",
 		UPDATE: "FILE_UPDATE",
 		LINK:   "LINK_CREATE",
+		DIR:    "DIR_CREATE",
 		OWNER:  "OWNER",
 		MODE:   "CHMOD",
 		POST:   "POST_UPDATE",
@@ -132,6 +134,26 @@ func LinkToCreate(trigger *PetsFile) *PetsAction {
 		return &PetsAction{
 			Cause:   cause,
 			Command: NewCmd([]string{"/bin/ln", "-s", trigger.Source, trigger.Dest}),
+			Trigger: trigger,
+		}
+	}
+}
+
+// DirToCreate figures out if the given trigger represents a directory that
+// needs to be created, and returns the corresponding PetsAction.
+func DirToCreate(trigger *PetsFile) *PetsAction {
+	if trigger.Directory == "" {
+		return nil
+	}
+
+	cause := trigger.NeedsDir()
+
+	if cause == NONE {
+		return nil
+	} else {
+		return &PetsAction{
+			Cause:   cause,
+			Command: NewCmd([]string{"/bin/mkdir", "-p", trigger.Directory}),
 			Trigger: trigger,
 		}
 	}
@@ -270,6 +292,12 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 		// Any symlink to create
 		if linkAction := LinkToCreate(trigger); linkAction != nil {
 			actions = append(actions, linkAction)
+			actionFired = true
+		}
+
+		// Any directory to create
+		if dirAction := DirToCreate(trigger); dirAction != nil {
+			actions = append(actions, dirAction)
 			actionFired = true
 		}
 

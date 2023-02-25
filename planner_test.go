@@ -139,3 +139,29 @@ func TestLn(t *testing.T) {
 	assertEquals(t, pa.Cause.String(), "LINK_CREATE")
 	assertEquals(t, pa.Command.String(), "/bin/ln -s sample_pet/vimrc /tmp/vimrc")
 }
+
+func TestMkdir(t *testing.T) {
+	pf := NewPetsFile()
+
+	pa := DirToCreate(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+
+	pf.Directory = "/etc"
+
+	pa = DirToCreate(pf)
+	if pa != nil {
+		t.Errorf("Expecting nil, got %v instead", pa)
+	}
+
+	pf.Directory = "/etc/polpette/al/sugo"
+
+	pa = DirToCreate(pf)
+	if pa == nil {
+		t.Errorf("Expecting some action, got nil instead")
+	}
+
+	assertEquals(t, pa.Cause.String(), "DIR_CREATE")
+	assertEquals(t, pa.Command.String(), "/bin/mkdir -p /etc/polpette/al/sugo")
+}

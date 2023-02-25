@@ -128,3 +128,26 @@ func TestNeedsLinkDestIsSymlink(t *testing.T) {
 	f.AddLink("/etc/mtab")
 	assertEquals(t, int(f.NeedsLink()), int(NONE))
 }
+
+func TestNeedsDirNoDirectory(t *testing.T) {
+	f := NewPetsFile()
+	assertEquals(t, int(f.NeedsDir()), int(NONE))
+}
+
+func TestNeedsDirHappyPathDIR(t *testing.T) {
+	f := NewPetsFile()
+	f.Directory = "/etc/does/not/exist"
+	assertEquals(t, int(f.NeedsDir()), int(DIR))
+}
+
+func TestNeedsDirHappyPathNONE(t *testing.T) {
+	f := NewPetsFile()
+	f.Directory = "/etc"
+	assertEquals(t, int(f.NeedsDir()), int(NONE))
+}
+
+func TestNeedsDirDestIsFile(t *testing.T) {
+	f := NewPetsFile()
+	f.Directory = "/etc/passwd"
+	assertEquals(t, int(f.NeedsDir()), int(NONE))
+}

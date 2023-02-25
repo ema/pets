@@ -14,11 +14,16 @@ import (
 // PetsFile is the central data structure of the system: it is the in-memory
 // representation of a configuration file (eg: sshd_config)
 type PetsFile struct {
+	// Absolute path to the configuration file
 	Source string
 	Pkgs   []PetsPackage
-	Dest   string
-	User   *user.User
-	Group  *user.Group
+	// Full destination path where the file has to be installed
+	Dest string
+	// Directory where the file has to be installed. This is only set in
+	// case we have to create the destination directory
+	Directory string
+	User      *user.User
+	Group     *user.Group
 	// use string instead of os.FileMode to avoid converting back and forth
 	Mode string
 	Pre  *exec.Cmd
@@ -116,6 +121,42 @@ func (pf *PetsFile) NeedsLink() PetsCause {
 	return NONE
 }
 
+// NeedsDir returns PetsCause DIR if there is no directory at Directory,
+// meaning that it has to be created. Most of this is suspiciously similar to
+// NeedsLink above.
+func (pf *PetsFile) NeedsDir() PetsCause {
+	if pf.Directory == "" {
+		return NONE
+	}
+
+	fi, err := os.Lstat(pf.Directory)
+
+	if os.IsNotExist(err) {
+		// Directory does not exist yet. Happy path, we are gonna create it!
+		return DIR
+	}
+
+	if err != nil {
+		// There was an error calling lstat, putting all my money on
+		// permission denied.
+		log.Printf("[ERROR] cannot lstat Directory %s: %v\n", pf.Directory, err)
+		return NONE
+	}
+
+	// We are here because Directory already exists and lstat succeeded. At this
+	// point there are two options:
+	// (1) Dest is a directory \o/
+	// (2) Dest is a file, a symlink, or something else (a squirrel?) /o\
+	//
+	// In any case there is no action to take, but let's come up with a valid
+	// excuse for not doing anything.
+
+	if !fi.IsDir() {
+		log.Printf("[ERROR] %s already exists and it is not a directory\n", pf.Directory)
+	}
+	return NONE
+}
+
 func (pf *PetsFile) IsValid(pathErrorOK bool) bool {
 	// Check if the specified package(s) exists
 	for _, pkg := range pf.Pkgs {
@@ -133,8 +174,8 @@ func (pf *PetsFile) IsValid(pathErrorOK bool) bool {
 }
 
 func (pf *PetsFile) AddDest(dest string) {
-	// TODO: create dest if missing
 	pf.Dest = dest
+	pf.Directory = filepath.Dir(dest)
 }
 
 func (pf *PetsFile) AddLink(dest string) {
