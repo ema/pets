@@ -15,6 +15,7 @@ pets works on Linux systems. The following distro families are supported:
 - Debian-like (APT)
 - RedHat-like (YUM)
 - Alpine (APK)
+- Arch Linux (Pacman, yay)
 
 == Summary
 
