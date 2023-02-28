@@ -1,6 +1,6 @@
 all:
 	go fmt
-	go build
+	CGO_ENABLED=0 go build
 	asciidoctor -b manpage manpage.adoc
 
 test:
