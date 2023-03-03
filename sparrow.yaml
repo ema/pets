@@ -11,7 +11,7 @@ tasks:
   code: |
     set -e
     echo "Run tests for OS: $os ..."
-    if test "$os" = "ubuntu" || test "$os" = "debian"; then
+    if test "$os" = "ubuntu" || test "$os" = "debian" || test "$os" = "arch" || test "$os" = "archlinux"; then
       export PATH=/usr/local/go/bin:$PATH
     fi
     go version
