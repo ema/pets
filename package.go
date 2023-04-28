@@ -4,6 +4,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -189,7 +190,10 @@ func (pp PetsPackage) IsInstalled() bool {
 func InstallCommand() *exec.Cmd {
 	switch WhichPackageManager() {
 	case APT:
-		return NewCmd([]string{"apt-get", "-y", "install"})
+		cmd := NewCmd([]string{"apt-get", "-y", "install"})
+		cmd.Env = os.Environ()
+		cmd.Env = append(cmd.Env, "DEBIAN_FRONTEND=noninteractive")
+		return cmd
 	case YUM:
 		return NewCmd([]string{"yum", "-y", "install"})
 	case APK:
