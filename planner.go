@@ -283,6 +283,12 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 	for _, trigger := range triggers {
 		actionFired := false
 
+		// Any directory to create
+		if dirAction := DirToCreate(trigger); dirAction != nil {
+			actions = append(actions, dirAction)
+			actionFired = true
+		}
+
 		// Then, figure out which files need to be modified/created.
 		if fileAction := FileToCopy(trigger); fileAction != nil {
 			actions = append(actions, fileAction)
@@ -292,12 +298,6 @@ func NewPetsActions(triggers []*PetsFile) []*PetsAction {
 		// Any symlink to create
 		if linkAction := LinkToCreate(trigger); linkAction != nil {
 			actions = append(actions, linkAction)
-			actionFired = true
-		}
-
-		// Any directory to create
-		if dirAction := DirToCreate(trigger); dirAction != nil {
-			actions = append(actions, dirAction)
 			actionFired = true
 		}
 
