@@ -1,6 +1,7 @@
 all:
 	go fmt
 	CGO_ENABLED=0 go build
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o pets-arm
 	asciidoctor -b manpage manpage.adoc
 
 test:
