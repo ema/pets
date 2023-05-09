@@ -168,9 +168,9 @@ func (pp PetsPackage) IsInstalled() bool {
 	}
 
 	if family == PACMAN || family == YAY {
-		installed := NewCmd([]string{"pacman", "-Qs", string(pp)})
+		installed := NewCmd([]string{"pacman", "-Q", string(pp)})
 		if family == YAY {
-			installed = NewCmd([]string{"yay", "-Qs", string(pp)})
+			installed = NewCmd([]string{"yay", "-Q", string(pp)})
 		}
 		// pacman and yay will return 0 if the package is installed 1 if not
 		if _, _, err := RunCmd(installed); err != nil {
