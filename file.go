@@ -180,6 +180,7 @@ func (pf *PetsFile) AddDest(dest string) {
 
 func (pf *PetsFile) AddLink(dest string) {
 	pf.Dest = dest
+	pf.Directory = filepath.Dir(dest)
 	pf.Link = true
 }
 
