@@ -62,6 +62,46 @@ func whichPackageManager() PackageManager {
 	panic("Unknown Package Manager")
 }
 
+var availablePackages map[string]struct{}
+
+func getAvailablePackages() map[string]struct{} {
+	if availablePackages != nil {
+		return availablePackages
+	}
+
+	// NOTE: if a package comes from a pacman repository, it'll
+	// get listed with [installed] in the output. We do not use
+	// this to get the list of installed packages, as that would
+	// miss AUR packages.
+	if WhichPackageManager == PACMAN || WhichPackageManager == YAY {
+		log.Printf("[DEBUG] Fetching list of available packages\n")
+		cmd := NewCmd([]string{"pacman", "-Sl"})
+		stdout, _, err := RunCmd(cmd)
+
+	    if err != nil {
+			log.Printf("[ERROR] %s failed: %s\n", cmd, err)
+			return nil
+		}
+
+		pkgs := make(map[string]struct{})
+		for _, line := range strings.Split(stdout, "\n") {
+			if line == "" {
+				continue
+			}
+
+			// example line:
+			// core archlinux-keyring 20230504-1 [installed]
+			parts := strings.Split(line, " ")
+			pkgs[parts[1]] = struct{}{}
+		}
+
+		availablePackages = pkgs
+		return pkgs
+	}
+
+	return nil
+}
+
 func (pp PetsPackage) getPkgInfo() string {
 	var pkgInfo *exec.Cmd
 
@@ -90,6 +130,20 @@ func (pp PetsPackage) getPkgInfo() string {
 
 // IsValid returns true if the given PetsPackage is available in the distro.
 func (pp PetsPackage) IsValid() bool {
+	pkgs := getAvailablePackages()
+	if pkgs != nil {
+		if _, ok := pkgs[string(pp)]; ok {
+			log.Printf("[DEBUG] %s is a valid package name (cached)\n", pp)
+			return true
+		} else if WhichPackageManager != YAY {
+			log.Printf("[ERROR] %s is not an available package\n", pp)
+			return false
+		} else {
+			// for yay, we only know about the non-AUR packages, so we fall back
+			// to the per-package commands
+		}
+	}
+
 	stdout := pp.getPkgInfo()
 	if WhichPackageManager == APT && strings.HasPrefix(stdout, string(pp)) {
 		// Return true if the output of apt-cache policy begins with pp
