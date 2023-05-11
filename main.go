@@ -46,10 +46,9 @@ func main() {
 	log.SetOutput(GetLogFilter(debug))
 
 	// Print distro family
-	family := WhichPackageManager()
-	if family == APT {
+	if WhichPackageManager == APT {
 		log.Println("[DEBUG] Running on a Debian-like system")
-	} else if family == YUM {
+	} else if WhichPackageManager == YUM {
 		log.Println("[DEBUG] Running on a RedHat-like system")
 	}
 	// *** Config parser ***

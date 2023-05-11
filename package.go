@@ -24,8 +24,10 @@ const (
 	PACMAN
 )
 
-// WhichPackageManager is available on the system
-func WhichPackageManager() PackageManager {
+var WhichPackageManager = whichPackageManager()
+
+// whichPackageManager is available on the system
+func whichPackageManager() PackageManager {
 	var err error
 
 	apt := NewCmd([]string{"apt", "--help"})
@@ -63,7 +65,7 @@ func WhichPackageManager() PackageManager {
 func (pp PetsPackage) getPkgInfo() string {
 	var pkgInfo *exec.Cmd
 
-	switch WhichPackageManager() {
+	switch WhichPackageManager {
 	case APT:
 		pkgInfo = NewCmd([]string{"apt-cache", "policy", string(pp)})
 	case YUM:
@@ -89,15 +91,13 @@ func (pp PetsPackage) getPkgInfo() string {
 // IsValid returns true if the given PetsPackage is available in the distro.
 func (pp PetsPackage) IsValid() bool {
 	stdout := pp.getPkgInfo()
-	family := WhichPackageManager()
-
-	if family == APT && strings.HasPrefix(stdout, string(pp)) {
+	if WhichPackageManager == APT && strings.HasPrefix(stdout, string(pp)) {
 		// Return true if the output of apt-cache policy begins with pp
 		log.Printf("[DEBUG] %s is a valid package name\n", pp)
 		return true
 	}
 
-	if family == YUM {
+	if WhichPackageManager == YUM {
 		for _, line := range strings.Split(stdout, "\n") {
 			line = strings.TrimSpace(line)
 			pkgName := strings.SplitN(line, ": ", 2)
@@ -109,13 +109,13 @@ func (pp PetsPackage) IsValid() bool {
 		}
 	}
 
-	if family == APK && strings.HasPrefix(stdout, string(pp)) {
+	if WhichPackageManager == APK && strings.HasPrefix(stdout, string(pp)) {
 		// Return true if the output of apk search -e begins with pp
 		log.Printf("[DEBUG] %s is a valid package name\n", pp)
 		return true
 	}
 
-	if (family == PACMAN || family == YAY) && !strings.HasPrefix(stdout, "error:") {
+	if (WhichPackageManager == PACMAN || WhichPackageManager == YAY) && !strings.HasPrefix(stdout, "error:") {
 		// Return true if the output of pacman -Si doesnt begins with error
 		log.Printf("[DEBUG] %s is a valid package name\n", pp)
 		return true
@@ -128,9 +128,7 @@ func (pp PetsPackage) IsValid() bool {
 // IsInstalled returns true if the given PetsPackage is installed on the
 // system.
 func (pp PetsPackage) IsInstalled() bool {
-	family := WhichPackageManager()
-
-	if family == APT {
+	if WhichPackageManager == APT {
 		stdout := pp.getPkgInfo()
 		for _, line := range strings.Split(stdout, "\n") {
 			line = strings.TrimSpace(line)
@@ -144,7 +142,7 @@ func (pp PetsPackage) IsInstalled() bool {
 		return false
 	}
 
-	if family == YUM {
+	if WhichPackageManager == YUM {
 		installed := NewCmd([]string{"rpm", "-qa", string(pp)})
 		stdout, _, err := RunCmd(installed)
 		if err != nil {
@@ -154,7 +152,7 @@ func (pp PetsPackage) IsInstalled() bool {
 		return len(stdout) > 0
 	}
 
-	if family == APK {
+	if WhichPackageManager == APK {
 		installed := NewCmd([]string{"apk", "info", "-e", string(pp)})
 		stdout, _, err := RunCmd(installed)
 		if err != nil {
@@ -167,9 +165,9 @@ func (pp PetsPackage) IsInstalled() bool {
 		return strings.TrimSpace(stdout) == string(pp)
 	}
 
-	if family == PACMAN || family == YAY {
+	if WhichPackageManager == PACMAN || WhichPackageManager == YAY {
 		installed := NewCmd([]string{"pacman", "-Q", string(pp)})
-		if family == YAY {
+		if WhichPackageManager == YAY {
 			installed = NewCmd([]string{"yay", "-Q", string(pp)})
 		}
 		// pacman and yay will return 0 if the package is installed 1 if not
@@ -188,7 +186,7 @@ func (pp PetsPackage) IsInstalled() bool {
 // InstallCommand returns the command needed to install packages on this
 // system.
 func InstallCommand() *exec.Cmd {
-	switch WhichPackageManager() {
+	switch WhichPackageManager {
 	case APT:
 		cmd := NewCmd([]string{"apt-get", "-y", "install"})
 		cmd.Env = os.Environ()
