@@ -1,2 +1,4 @@
+github.com/facebookgo/symwalk v0.0.0-20150726040526-42004b9f3222 h1:ivxAxcE9py2xLAqpcEwN7sN711aLfEWgh3cY0aha7uY=
+github.com/facebookgo/symwalk v0.0.0-20150726040526-42004b9f3222/go.mod h1:PgrCjL2+FgkITqxQI+erRTONtAv4JkpOzun5ozKW/Jg=
 github.com/hashicorp/logutils v1.0.0 h1:dLEQVugN8vlakKOUE3ihGLTZJRB4j+M2cdTm/ORI65Y=
 github.com/hashicorp/logutils v1.0.0/go.mod h1:QIAnNjmIWmVIIkWDTG1z5v++HQmx9WQRO+LraFDTW64=

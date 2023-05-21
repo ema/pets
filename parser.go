@@ -13,6 +13,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/facebookgo/symwalk"
 )
 
 // Because it is important to know when enough is enough.
@@ -126,7 +128,7 @@ func ParseFiles(directory string) ([]*PetsFile, error) {
 
 	log.Printf("[DEBUG] using configuration directory '%s'\n", directory)
 
-	err := filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+	err := symwalk.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		// This function is called once for each file in the Pets configuration
 		// directory
 		if err != nil {
@@ -159,10 +161,17 @@ func ParseFiles(directory string) ([]*PetsFile, error) {
 		// is the source path. Every long journey begins with a single step!
 		pf := NewPetsFile()
 
+		// Evaluate the symlinks, to simplify checking whether a symlink
+		// we created points to the file it should
+		direct, err := filepath.EvalSymlinks(path)
+		if err != nil {
+			return err
+		}
+
 		// Get absolute path to the source. Technically we would be fine with a
-		// relative path too, but it's good to remove abiguity. Plus absolute
+		// relative path too, but it's good to remove ambiguity. Plus absolute
 		// paths make things easier in case we have to create a symlink.
-		abs, err := filepath.Abs(path)
+		abs, err := filepath.Abs(direct)
 		if err != nil {
 			return err
 		}
