@@ -71,7 +71,7 @@ func main() {
 	globalErrors := CheckGlobalConstraints(files)
 
 	if globalErrors != nil {
-		log.Println(err)
+		log.Println(globalErrors)
 		// Global validation errors mean we should stop the whole update.
 		return
 	}
